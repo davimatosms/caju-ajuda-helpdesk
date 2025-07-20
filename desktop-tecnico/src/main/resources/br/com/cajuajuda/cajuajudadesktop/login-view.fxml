@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.cajuajuda.cajuajudadesktop.LoginController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <Label text="Acesso Técnico - Caju Ajuda">
+        <font>
+            <Font name="System Bold" size="18.0" />
+        </font>
+    </Label>
+
+    <VBox spacing="5.0" maxWidth="250">
+        <Label text="E-mail:" />
+        <TextField fx:id="emailField" promptText="tecnico@cajuajuda.com" />
+    </VBox>
+
+    <VBox spacing="5.0" maxWidth="250">
+        <Label text="Senha:" />
+        <PasswordField fx:id="passwordField" />
+    </VBox>
+
+    <Button onAction="#handleLoginButtonAction" text="Entrar" defaultButton="true" prefWidth="100"/>
+
+    <Label fx:id="statusLabel" textFill="RED" />
+</VBox>

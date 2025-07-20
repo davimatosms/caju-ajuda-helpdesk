@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="700.0" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.cajuajuda.cajuajudadesktop.DetalhesChamadoController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <Label fx:id="tituloLabel" text="Detalhes do Chamado #ID">
+            <font>
+                <Font name="System Bold" size="22.0" />
+            </font>
+        </Label>
+
+        <Label text="Histórico da Conversa:">
+            <font>
+                <Font name="System Bold" size="14.0" />
+            </font></Label>
+        <ListView fx:id="mensagensListView" prefHeight="400.0" VBox.vgrow="ALWAYS" />
+
+        <Separator prefWidth="200.0" />
+
+        <Label text="Sua Resposta:">
+            <font>
+                <Font name="System Bold" size="14.0" />
+            </font>
+        </Label>
+        <TextArea fx:id="respostaArea" prefHeight="120.0" promptText="Digite sua resposta aqui..." wrapText="true" />
+
+        <Button fx:id="enviarButton" onAction="#handleEnviarMensagem" prefHeight="40.0" prefWidth="160.0" text="Enviar Mensagem" />
+
+    </children>
+</VBox>

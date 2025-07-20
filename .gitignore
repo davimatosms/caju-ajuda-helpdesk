@@ -1,0 +1,24 @@
+# Arquivos compilados do Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+build-number.properties
+
+# Arquivos de configuração do IDE (IntelliJ)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Arquivos de Log
+*.log
+logs/
+
+# Outros
+.DS_Store
+caju-uploads/
