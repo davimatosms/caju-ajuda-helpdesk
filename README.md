@@ -96,3 +96,11 @@ A API para o cliente técnico está construída sob o prefixo `/api`.
 | :----- | :--------------------- | :---------------------------------------- | :--------- |
 | `POST` | `/api/auth/login`      | Autentica um usuário e retorna um Token JWT. | Público    |
 | `GET`  | `/api/tecnico/chamados`| Retorna a lista de todos os chamados.     | `TECNICO`  |
+
+### 7. Próximos Passos
+
+[ ] Implementar um módulo de administração.
+
+[ ] Iniciar o desenvolvimento do cliente mobile para os usuários.
+
+[ ] Adicionar um sistema de notificações.
