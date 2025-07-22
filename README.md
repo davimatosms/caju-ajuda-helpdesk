@@ -24,23 +24,7 @@ O **Caju Ajuda** é uma solução de suporte ao cliente que visa otimizar o flux
 
 O projeto é construído sobre uma filosofia **API-First**, onde um backend robusto e centralizado (localizado na pasta `/backend`) serve como a única fonte de verdade para os diferentes clientes (frontends).
 
- +----------------------------+
-  |  Cliente Web (Navegador)   | -- (CLIENTE)
-  |  (Thymeleaf + Bootstrap)   |
-  +----------------------------+
-             |
-             | (Requisições HTTP)
-             v
-  +----------------------------+      +--------------------------+
-  |      Backend "applogin"    |      |   Cliente Desktop (.exe) | -- (TÉCNICO)
-  |   (API REST com Spring)    |----->|   (JavaFX)               |
-  +----------------------------+      +--------------------------+
-             |
-             | (JDBC)
-             v
-  +----------------------------+
-  |   Banco de Dados (MySQL)   |
-  +----------------------------+
+<img width="606" height="367" alt="image" src="https://github.com/user-attachments/assets/64c956a8-d4d9-4461-b04a-8d9df86c126e" />
 
 
 ### 3. Funcionalidades
