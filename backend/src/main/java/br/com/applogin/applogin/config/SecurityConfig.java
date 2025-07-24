@@ -11,7 +11,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,70 +24,59 @@ public class SecurityConfig {
 
     @Autowired
     private UserDetailServicesImpl userDetailServicesImpl;
-
     @Autowired
     private JwtAuthenticationFilter jwtAuthFilter;
+    @Autowired
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
-    /**
-     * CADEIA DE SEGURANÇA 1: Para a API (Stateless com JWT)
-     * Protege todos os endpoints que começam com /api/**
-     */
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
-                .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF para a API
+                .csrf(csrf -> csrf.disable()) // CSRF desabilitado para a API
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll() // Login da API é público
-                        .requestMatchers("/api/tecnico/**").hasAuthority("ROLE_TECNICO")
+                        .requestMatchers("/api/auth/**").permitAll()
+                        // CORREÇÃO: Usando hasRole para seguir a convenção do Spring.
+                        .requestMatchers("/api/tecnico/**").hasRole("TECNICO")
                         .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())
+                // A linha abaixo foi removida por ser redundante, o Spring já injeta o provider.
+                // .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    /**
-     * CADEIA DE SEGURANÇA 2: Para o Cliente Web (Stateful com Sessão)
-     * Protege todas as outras requisições.
-     */
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF da web ignora as rotas da API para não haver conflito
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+                // A regra de ignorar CSRF para /api/** foi removida pois o outro filtro já cuida disso.
                 .authorizeHttpRequests(authorize -> authorize
-                        // Libera acesso a recursos estáticos, páginas públicas e endpoints do WebSocket
                         .requestMatchers(
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/login",
-                                "/cadastroUsuario",
-                                "/ws-chat-web/**", // Permite conexão WebSocket da web
-                                "/ws-chat-java/**"  // Permite conexão WebSocket do JavaFX
+                                "/css/**", "/js/**", "/images/**",
+                                "/login", "/cadastroUsuario", "/verify",
+                                "/ws-chat-web/**", "/ws-chat-java/**"
                         ).permitAll()
-                        // Protege as áreas do cliente
-                        .requestMatchers("/", "/chamados/**").hasAuthority("ROLE_CLIENTE")
-                        // Protege todo o resto
+                        // CORREÇÃO: Usando hasRole para seguir a convenção do Spring.
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/chamados/**").hasRole("CLIENTE")
+                        .requestMatchers("/").hasAnyRole("CLIENTE", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("email")
                         .passwordParameter("senha")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(customAuthenticationSuccessHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/login?logout")
                 );
-
         return http.build();
     }
 

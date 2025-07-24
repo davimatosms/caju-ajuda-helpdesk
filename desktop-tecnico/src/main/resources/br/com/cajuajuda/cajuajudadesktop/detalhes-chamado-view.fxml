@@ -1,37 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="700.0" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.cajuajuda.cajuajudadesktop.DetalhesChamadoController">
+<VBox prefHeight="700.0" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.cajuajuda.cajuajudadesktop.controller.DetalhesChamadoController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     <children>
-        <Label fx:id="tituloLabel" text="Detalhes do Chamado #ID">
-            <font>
-                <Font name="System Bold" size="22.0" />
-            </font>
+        <Label fx:id="tituloLabel" styleClass="title-label" text="Detalhes do Chamado #ID" />
+
+        <Label fx:id="labelSlaStatus" text="Status do SLA: Calculando..." style="-fx-font-weight: bold;">
+            <VBox.margin>
+                <Insets top="-10.0" />
+            </VBox.margin>
         </Label>
 
         <Label text="Histórico da Conversa:">
             <font>
                 <Font name="System Bold" size="14.0" />
-            </font></Label>
+            </font>
+        </Label>
         <ListView fx:id="mensagensListView" prefHeight="400.0" VBox.vgrow="ALWAYS" />
-
         <Separator prefWidth="200.0" />
-
         <Label text="Sua Resposta:">
             <font>
                 <Font name="System Bold" size="14.0" />
             </font>
         </Label>
-        <TextArea fx:id="respostaArea" prefHeight="120.0" promptText="Digite sua resposta aqui..." wrapText="true" />
-
+        <TextArea fx:id="respostaArea" prefHeight="100.0" promptText="Digite sua resposta aqui..." wrapText="true" />
         <Button fx:id="enviarButton" onAction="#handleEnviarMensagem" prefHeight="40.0" prefWidth="160.0" text="Enviar Mensagem" />
-
+        <Separator prefWidth="200.0" />
+        <Label text="Gerenciar Chamado:">
+            <font>
+                <Font name="System Bold" size="14.0" />
+            </font>
+        </Label>
+        <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <children>
+                <Label text="Mudar Status para:" />
+                <ComboBox fx:id="statusComboBox" prefWidth="200.0" />
+                <Button fx:id="salvarStatusButton" onAction="#handleSalvarStatus" text="Salvar Status" />
+            </children>
+        </HBox>
     </children>
 </VBox>

@@ -3,6 +3,7 @@ package br.com.applogin.applogin.dto;
 import br.com.applogin.applogin.model.Chamado;
 import br.com.applogin.applogin.model.PrioridadeChamado;
 import br.com.applogin.applogin.model.StatusChamado;
+import br.com.applogin.applogin.model.StatusSla; // <-- 1. Importar o novo Enum
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ public class ChamadoDto {
     private StatusChamado status;
     private PrioridadeChamado prioridade;
     private LocalDateTime dataCriacao;
+    private StatusSla statusSla; // <-- 2. NOVO CAMPO
 
     // Construtor que converte uma Entidade Chamado para este DTO
     public ChamadoDto(Chamado chamado) {
@@ -23,53 +25,24 @@ public class ChamadoDto {
         this.status = chamado.getStatus();
         this.prioridade = chamado.getPrioridade();
         this.dataCriacao = chamado.getDataCriacao();
+        this.statusSla = chamado.getStatusSla(); // <-- 3. ADICIONAR MAPEAMENTO
     }
 
-    public Long getId() {
-        return id;
-    }
+    // Getters e Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNomeCliente() { return nomeCliente; }
+    public void setNomeCliente(String nomeCliente) { this.nomeCliente = nomeCliente; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public StatusChamado getStatus() { return status; }
+    public void setStatus(StatusChamado status) { this.status = status; }
+    public PrioridadeChamado getPrioridade() { return prioridade; }
+    public void setPrioridade(PrioridadeChamado prioridade) { this.prioridade = prioridade; }
+    public LocalDateTime getDataCriacao() { return dataCriacao; }
+    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNomeCliente() {
-        return nomeCliente;
-    }
-
-    public void setNomeCliente(String nomeCliente) {
-        this.nomeCliente = nomeCliente;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public StatusChamado getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusChamado status) {
-        this.status = status;
-    }
-
-    public PrioridadeChamado getPrioridade() {
-        return prioridade;
-    }
-
-    public void setPrioridade(PrioridadeChamado prioridade) {
-        this.prioridade = prioridade;
-    }
-
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
+    // <-- 4. ADICIONAR GETTER E SETTER PARA O NOVO CAMPO
+    public StatusSla getStatusSla() { return statusSla; }
+    public void setStatusSla(StatusSla statusSla) { this.statusSla = statusSla; }
 }

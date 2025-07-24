@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Administrativo - Caju Ajuda</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="/css/dashboard-style.css" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments :: navbar}"></div>
+
+<main class="container main-content">
+    <h1 class="display-6 fw-bold mb-4">Painel Administrativo</h1>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card content-card text-center p-4">
+                <h2 class="display-4 fw-bold" th:text="${chamadosAbertos}">0</h2>
+                <p class="text-muted fs-5 mb-0">Chamados Abertos</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card content-card text-center p-4">
+                <h2 class="display-4 fw-bold" th:text="${chamadosEmAndamento}">0</h2>
+                <p class="text-muted fs-5 mb-0">Chamados em Andamento</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card content-card text-center p-4">
+                <h2 class="display-4 fw-bold" th:text="${chamadosFechados}">0</h2>
+                <p class="text-muted fs-5 mb-0">Chamados Fechados</p>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="row mt-5">
+        <div class="col-lg-5 mb-4">
+            <div class="card content-card p-4">
+                <h5 class="mb-3">Chamados por Status</h5>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-7 mb-4">
+            <div class="card content-card p-4">
+                <h5 class="mb-3">Chamados Fechados por Técnico</h5>
+                <canvas id="tecnicoChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<div th:replace="~{fragments :: footer}"></div>
+<div th:replace="~{fragments :: logout-modal}"></div>
+<div th:replace="~{fragments :: scripts}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Executa o script quando a página terminar de carregar
+    document.addEventListener("DOMContentLoaded", function() {
+        // Faz uma requisição para a nossa API de métricas
+        fetch('/admin/metricas')
+        .then(response => response.json())
+        .then(data => {
+                // Chama as funções para desenhar cada gráfico com os dados recebidos
+                renderStatusChart(data);
+                renderTecnicoChart(data);
+            })
+            .catch(error => console.error('Erro ao buscar dados das métricas:', error));
+    });
+
+    // Função para desenhar o gráfico de pizza (Status)
+    function renderStatusChart(data) {
+        const ctx = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut', // Tipo do gráfico
+            data: {
+                labels: ['Abertos', 'Em Andamento', 'Fechados'],
+                datasets: [{
+                    label: 'Chamados',
+                    data: [data.chamadosAbertos, data.chamadosEmAndamento, data.chamadosFechados],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.8)', // Azul
+                        'rgba(255, 206, 86, 0.8)', // Amarelo
+                        'rgba(108, 117, 125, 0.8)'  // Cinza
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    }
+
+    // Função para desenhar o gráfico de barras (Técnicos)
+    function renderTecnicoChart(data) {
+        const ctx = document.getElementById('tecnicoChart').getContext('2d');
+
+        // Prepara os dados que vieram da API
+        const nomesTecnicos = data.performanceTecnicos.map(item => item.nomeTecnico);
+        const totaisChamados = data.performanceTecnicos.map(item => item.totalChamadosFechados);
+
+        new Chart(ctx, {
+            type: 'bar', // Tipo do gráfico
+            data: {
+                labels: nomesTecnicos,
+                datasets: [{
+                    label: 'Chamados Fechados',
+                    data: totaisChamados,
+                    backgroundColor: 'rgba(249, 115, 22, 0.8)', // Laranja Caju
+                    borderColor: 'rgba(249, 115, 22, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y', // Deixa as barras na horizontal para melhor leitura
+                plugins: {
+                    legend: {
+                        display: false // Esconde a legenda, pois o título já é claro
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

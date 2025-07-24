@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+
+<HBox fx:id="messageContainer" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox fx:id="messageBubble" styleClass="message-bubble">
+        <padding>
+            <Insets top="8.0" right="12.0" bottom="8.0" left="12.0" />
+        </padding>
+        <children>
+            <Label fx:id="authorLabel" styleClass="author-label" text="Nome do Autor" />
+            <Label fx:id="messageTextLabel" wrapText="true" text="Este é o texto da mensagem que pode ter várias linhas." />
+            <Label fx:id="timestampLabel" styleClass="timestamp-label" text="18/07/2025 10:30" />
+        </children>
+    </VBox>
+</HBox>

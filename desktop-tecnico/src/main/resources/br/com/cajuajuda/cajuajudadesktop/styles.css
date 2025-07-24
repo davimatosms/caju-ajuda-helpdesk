@@ -1,0 +1,92 @@
+/* Arquivo de Estilos para a Aplicação Desktop Caju Ajuda */
+
+/* Define as variáveis de cor e a fonte padrão para toda a aplicação */
+.root {
+    -fx-font-family: "Poppins", sans-serif;
+    -caju-primary: #f97316;
+    -caju-secondary: #ef4444;
+    -text-dark: #1a202c;
+    -bg-main: #f8f9fa;
+    -border-color: #dee2e6;
+}
+
+/* Estilo padrão para os botões */
+.button {
+    -fx-background-color: -caju-primary;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px; /* Cantos arredondados */
+    -fx-cursor: hand;
+}
+.button:hover {
+    -fx-background-color: #fb923c; /* Laranja um pouco mais claro */
+}
+
+/* Estilo para a tabela de chamados */
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: -bg-main;
+    -fx-border-color: -border-color;
+    -fx-border-width: 0 0 2px 0;
+}
+.table-view .column-header .label {
+    -fx-text-fill: -text-dark;
+    -fx-font-weight: bold;
+}
+
+/* Remove a borda azul de foco da tabela */
+.table-view:focused {
+    -fx-background-color: -fx-box-border, -fx-control-inner-background;
+}
+
+/* Estilo da lista de mensagens no chat */
+.list-cell {
+    -fx-padding: 8px;
+    -fx-background-color: -bg-main;
+}
+
+/* Títulos grandes */
+.title-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-dark;
+}
+
+/* --- ESTILOS PARA OS BALÕES DE CHAT --- */
+
+/* Estilo base para o balão de mensagem */
+.message-bubble {
+    -fx-background-radius: 15px;
+    -fx-max-width: 400px; /* Largura máxima do balão */
+}
+
+/* Balão para o CLIENTE (alinhado à esquerda) */
+.message-bubble-client {
+    -fx-background-color: #e9ecef; /* Cinza claro */
+}
+.message-bubble-client .author-label {
+    -fx-text-fill: #6c757d; /* Cinza escuro */
+    -fx-font-weight: bold;
+}
+
+/* Balão para o TÉCNICO (alinhado à direita) */
+.message-bubble-tecnico {
+    -fx-background-color: -caju-primary; /* Laranja da marca */
+}
+.message-bubble-tecnico .author-label,
+.message-bubble-tecnico .text-label,
+.message-bubble-tecnico .timestamp-label {
+    -fx-text-fill: white;
+}
+.message-bubble-tecnico .author-label {
+    -fx-font-weight: bold;
+}
+
+.timestamp-label {
+    -fx-font-size: 10px;
+    -fx-text-alignment: right;
+    -fx-alignment: CENTER_RIGHT;
+    -fx-padding: 4px 0 0 0;
+}

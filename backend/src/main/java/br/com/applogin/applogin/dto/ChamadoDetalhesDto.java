@@ -1,109 +1,47 @@
 package br.com.applogin.applogin.dto;
 
-import br.com.applogin.applogin.model.Anexo;
 import br.com.applogin.applogin.model.Chamado;
-import br.com.applogin.applogin.model.PrioridadeChamado;
-import br.com.applogin.applogin.model.StatusChamado;
+import br.com.applogin.applogin.model.StatusSla;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Este é o DTO principal que será retornado pela API
+
 public class ChamadoDetalhesDto {
     private Long id;
     private String titulo;
-    private String descricao; // Descrição original
-    private StatusChamado status;
-    private PrioridadeChamado prioridade;
-    private LocalDateTime dataCriacao;
-    private UsuarioDto cliente;
-    private List<Anexo> anexos;
+    private String descricaoInicial;
+    private String nomeCliente;
     private List<MensagemDto> mensagens;
+    private StatusSla statusSla;
+    private LocalDateTime dataLimiteResolucao;
 
     public ChamadoDetalhesDto(Chamado chamado) {
         this.id = chamado.getId();
         this.titulo = chamado.getTitulo();
-        this.descricao = chamado.getDescricao();
-        this.status = chamado.getStatus();
-        this.prioridade = chamado.getPrioridade();
-        this.dataCriacao = chamado.getDataCriacao();
-        this.cliente = new UsuarioDto(chamado.getCliente().getNome(), chamado.getCliente().getRole().name());
-        this.anexos = chamado.getAnexos();
+        this.nomeCliente = chamado.getCliente().getNome();
+        this.descricaoInicial = chamado.getMensagens().isEmpty() ? "" : chamado.getMensagens().get(0).getTexto();
         this.mensagens = chamado.getMensagens().stream().map(MensagemDto::new).collect(Collectors.toList());
+
+
+        this.statusSla = chamado.getStatusSla();
+        this.dataLimiteResolucao = chamado.getDataLimiteResolucao();
     }
 
-    // Adicione Getters e Setters para todos os campos
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public StatusChamado getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusChamado status) {
-        this.status = status;
-    }
-
-    public PrioridadeChamado getPrioridade() {
-        return prioridade;
-    }
-
-    public void setPrioridade(PrioridadeChamado prioridade) {
-        this.prioridade = prioridade;
-    }
-
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
-
-    public UsuarioDto getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(UsuarioDto cliente) {
-        this.cliente = cliente;
-    }
-
-    public List<Anexo> getAnexos() {
-        return anexos;
-    }
-
-    public void setAnexos(List<Anexo> anexos) {
-        this.anexos = anexos;
-    }
-
-    public List<MensagemDto> getMensagens() {
-        return mensagens;
-    }
-
-    public void setMensagens(List<MensagemDto> mensagens) {
-        this.mensagens = mensagens;
-    }
+    // Getters e Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getDescricaoInicial() { return descricaoInicial; }
+    public void setDescricaoInicial(String descricaoInicial) { this.descricaoInicial = descricaoInicial; }
+    public String getNomeCliente() { return nomeCliente; }
+    public void setNomeCliente(String nomeCliente) { this.nomeCliente = nomeCliente; }
+    public List<MensagemDto> getMensagens() { return mensagens; }
+    public void setMensagens(List<MensagemDto> mensagens) { this.mensagens = mensagens; }
+    public StatusSla getStatusSla() { return statusSla; }
+    public void setStatusSla(StatusSla statusSla) { this.statusSla = statusSla; }
+    public LocalDateTime getDataLimiteResolucao() { return dataLimiteResolucao; }
+    public void setDataLimiteResolucao(LocalDateTime dataLimiteResolucao) { this.dataLimiteResolucao = dataLimiteResolucao; }
 }

@@ -3,9 +3,6 @@ package br.com.applogin.applogin.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 public class Usuario {
 
@@ -23,14 +20,16 @@ public class Usuario {
     @NotEmpty
     private String senha;
 
-    // CAMPO DE PERFIL QUE ESTAVA FALTANDO
     @Enumerated(EnumType.STRING)
     private UsuarioRole role;
 
-    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Mensagem> mensagensEnviadas = new ArrayList<>();
+    // --- NOVOS CAMPOS PARA VERIFICAÇÃO ---
+    @Column(name = "verification_token")
+    private String verificationToken;
 
-    // GETTERS E SETTERS
+    private boolean enabled;
+
+    // --- GETTERS E SETTERS COMPLETOS ---
     public long getId() {
         return id;
     }
@@ -59,7 +58,6 @@ public class Usuario {
         this.senha = senha;
     }
 
-    // GETTER E SETTER PARA ROLE QUE ESTAVAM FALTANDO
     public UsuarioRole getRole() {
         return role;
     }
@@ -68,11 +66,19 @@ public class Usuario {
         this.role = role;
     }
 
-    public List<Mensagem> getMensagensEnviadas() {
-        return mensagensEnviadas;
+    public String getVerificationToken() {
+        return verificationToken;
     }
 
-    public void setMensagensEnviadas(List<Mensagem> mensagensEnviadas) {
-        this.mensagensEnviadas = mensagensEnviadas;
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

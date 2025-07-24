@@ -21,7 +21,6 @@ public class UserDetailServicesImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // A única responsabilidade desta classe é encontrar o usuário e convertê-lo.
         Usuario usuario = usuarioRepository.findByEmail(email);
         if (usuario == null) {
             throw new UsernameNotFoundException("Usuário não encontrado com o e-mail: " + email);
@@ -29,6 +28,15 @@ public class UserDetailServicesImpl implements UserDetailsService {
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + usuario.getRole().name());
 
-        return new User(usuario.getEmail(), usuario.getSenha(), Collections.singletonList(authority));
+        // Atualizado para usar o construtor completo que considera o status "enabled"
+        return new User(
+                usuario.getEmail(),
+                usuario.getSenha(),
+                usuario.isEnabled(),
+                true, // accountNonExpired
+                true, // credentialsNonExpired
+                true, // accountNonLocked
+                Collections.singletonList(authority)
+        );
     }
 }
