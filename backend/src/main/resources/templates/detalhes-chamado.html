@@ -61,26 +61,23 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
 
-    // Pega as variáveis do Thymeleaf para usar no JavaScript
     const chamadoId = /*[[${chamado.id}]]*/ 'default';
     const conversaInicial = {
         descricao: /*[[${chamado.descricao}]]*/ '',
-        cliente: /*[[${chamado.cliente}]]*/ {},
+        // --- CORREÇÃO AQUI ---
+        nomeCliente: /*[[${chamado.nomeCliente}]]*/ '',
         dataCriacao: /*[[${chamado.dataCriacao}]]*/ '',
         mensagens: /*[[${chamado.mensagens}]]*/ []
     };
 
-    // Referências para os elementos da página
     const messageForm = document.querySelector('#messageForm');
     const messageInput = document.querySelector('#message');
     const chatContainer = document.querySelector('#chat-container');
 
     let stompClient = null;
 
-    // Adiciona um listener para o formulário
     messageForm.addEventListener('submit', sendMessage, true);
 
-    // Função principal que conecta ao WebSocket
     function connect() {
         const socket = new SockJS('/ws-chat-web');
         stompClient = Stomp.over(socket);
@@ -88,7 +85,6 @@
     }
 
     function onConnected() {
-        // Se conecta com sucesso, se inscreve no tópico específico deste chamado
         stompClient.subscribe('/topic/chamados/' + chamadoId, onMessageReceived);
         console.log('Conectado ao WebSocket e inscrito no tópico: /topic/chamados/' + chamadoId);
     }
@@ -98,42 +94,29 @@
     }
 
     function sendMessage(event) {
-        event.preventDefault(); // Impede o recarregamento da página
+        event.preventDefault();
         const messageContent = messageInput.value.trim();
-
         if (messageContent && stompClient) {
-            const chatMessage = {
-                texto: messageContent,
-                chamadoId: chamadoId
-            };
-            // Envia a mensagem para o servidor
+            const chatMessage = { texto: messageContent, chamadoId: chamadoId };
             stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
-            messageInput.value = ''; // Limpa o campo de texto
+            messageInput.value = '';
         }
     }
 
-    // Função chamada quando uma nova mensagem é recebida do servidor
     function onMessageReceived(payload) {
         const message = JSON.parse(payload.body);
         appendMessage(message);
     }
 
-    // Função que cria o HTML para uma nova mensagem e a adiciona na tela
     function appendMessage(message) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message');
-
         const isTecnico = message.autor.role === 'TECNICO';
         if (isTecnico) {
             messageElement.classList.add('tecnico');
         }
-
         const avatarIconClass = isTecnico ? 'bi-headset' : 'bi-person-circle';
-
-        const dataFormatada = new Date(message.dataEnvio).toLocaleString('pt-BR', {
-            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
-        });
-
+        const dataFormatada = new Date(message.dataEnvio).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         messageElement.innerHTML = `
             <i class="bi ${avatarIconClass} avatar"></i>
             <div class="message-content">
@@ -143,22 +126,19 @@
             </div>
         `;
         chatContainer.appendChild(messageElement);
-        chatContainer.scrollTop = chatContainer.scrollHeight; // Rola para o final
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // Carrega o histórico inicial da conversa
     function carregarHistorico() {
-        // Mensagem Original
         appendMessage({
             texto: conversaInicial.descricao,
-            autor: { nome: conversaInicial.cliente.nome, role: 'CLIENTE' },
+            // --- E CORREÇÃO AQUI ---
+            autor: { nome: conversaInicial.nomeCliente, role: 'CLIENTE' },
             dataEnvio: conversaInicial.dataCriacao
         });
-        // Outras mensagens
         conversaInicial.mensagens.forEach(msg => appendMessage(msg));
     }
 
-    // Inicia tudo
     carregarHistorico();
     connect();
 

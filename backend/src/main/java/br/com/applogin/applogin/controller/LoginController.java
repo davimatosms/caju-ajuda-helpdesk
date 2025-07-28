@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.UUID;
 
 @Controller
-public class LoginController { // Nome da classe corrigido para convenção Java (LoginController)
+public class LoginController {
 
     @Autowired
     private UsuarioRepository ur;
@@ -35,8 +35,9 @@ public class LoginController { // Nome da classe corrigido para convenção Java
 
     @GetMapping("/login")
     public String login(Model model){
-        // Adiciona um objeto 'usuario' vazio ao model para o data-binding do formulário
-        model.addAttribute("usuario", new Usuario());
+        if (!model.containsAttribute("usuario")) {
+            model.addAttribute("usuario", new Usuario());
+        }
         return "login";
     }
 
@@ -55,19 +56,24 @@ public class LoginController { // Nome da classe corrigido para convenção Java
         return "index";
     }
 
-    // Método para exibir o formulário de cadastro
     @GetMapping("/cadastroUsuario")
-    public String exibirFormularioCadastro(Model model) {
-        model.addAttribute("usuario", new Usuario());
+    public String mostrarFormularioCadastro(Model model) {
+        if (!model.containsAttribute("usuario")) {
+            model.addAttribute("usuario", new Usuario());
+        }
         return "cadastro";
     }
 
     @PostMapping("/cadastroUsuario")
-    public String cadastroUsuario(@Valid @ModelAttribute("usuario") Usuario usuario, BindingResult result, HttpServletRequest request, RedirectAttributes redirectAttributes){
+    public String cadastroUsuario(@Valid @ModelAttribute("usuario") Usuario usuario,
+                                  BindingResult result,
+                                  HttpServletRequest request,
+                                  RedirectAttributes redirectAttributes){
+
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.usuario", result);
             redirectAttributes.addFlashAttribute("usuario", usuario);
-            return "redirect:/cadastroUsuario?error";
+            return "redirect:/cadastroUsuario";
         }
 
         if (ur.findByEmail(usuario.getEmail()) != null) {
@@ -82,19 +88,17 @@ public class LoginController { // Nome da classe corrigido para convenção Java
         ur.save(usuario);
 
         try {
-            String baseUrl = request.getRequestURL().toString().replace(request.getServletPath(), "");
-            String verificationUrl = baseUrl + "/verify?token=" + usuario.getVerificationToken();
+            String siteURL = request.getRequestURL().toString().replace(request.getServletPath(), "");
+            String verificationUrl = siteURL + "/verify?token=" + usuario.getVerificationToken();
 
-            // Chamada correta com os 3 argumentos String
             emailService.enviarEmailDeVerificacao(usuario.getEmail(), usuario.getNome(), verificationUrl);
-
-            redirectAttributes.addFlashAttribute("success_message", "Cadastro realizado com sucesso! Verifique seu e-mail para ativar a conta.");
         } catch (Exception e) {
-            // Adicionar log do erro é uma boa prática
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("error_message", "Usuário cadastrado, mas houve um erro ao enviar o e-mail de verificação.");
+            return "redirect:/login";
         }
 
-        return "redirect:/login";
+        return "registro-sucesso";
     }
 
     @GetMapping("/verify")
@@ -106,10 +110,10 @@ public class LoginController { // Nome da classe corrigido para convenção Java
             return "redirect:/login";
         } else {
             usuario.setEnabled(true);
-            usuario.setVerificationToken(null); // Limpa o token após o uso
+            usuario.setVerificationToken(null);
             ur.save(usuario);
-            redirectAttributes.addFlashAttribute("success_message", "Sua conta foi verificada com sucesso! Você já pode fazer o login.");
-            return "redirect:/login";
+
+            return "verificacao-sucesso";
         }
     }
 }

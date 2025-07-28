@@ -61,7 +61,7 @@ public class EmailService {
             enviarEmail(para, "Você recebeu uma nova resposta no chamado #" + chamadoId, corpoEmailHtml);
         } catch (Exception e) {
             logger.error("Falha ao enviar e-mail de notificação para {}: {}", para, e.getMessage());
-            // Não lançamos exceção aqui para não quebrar o fluxo do chat
+
         }
     }
 

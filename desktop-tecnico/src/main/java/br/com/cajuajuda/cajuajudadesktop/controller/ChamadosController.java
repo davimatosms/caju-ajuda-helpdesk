@@ -27,14 +27,22 @@ import java.util.List;
 
 public class ChamadosController {
 
-    @FXML private TableView<ChamadoDto> chamadosTable;
-    @FXML private TableColumn<ChamadoDto, String> slaColumn;
-    @FXML private TableColumn<ChamadoDto, Long> idColumn;
-    @FXML private TableColumn<ChamadoDto, String> tituloColumn;
-    @FXML private TableColumn<ChamadoDto, String> clienteColumn;
-    @FXML private TableColumn<ChamadoDto, StatusChamado> statusColumn;
-    @FXML private TableColumn<ChamadoDto, PrioridadeChamado> prioridadeColumn;
-    @FXML private TableColumn<ChamadoDto, LocalDateTime> dataColumn;
+    @FXML
+    private TableView<ChamadoDto> chamadosTable;
+    @FXML
+    private TableColumn<ChamadoDto, String> slaColumn;
+    @FXML
+    private TableColumn<ChamadoDto, Long> idColumn;
+    @FXML
+    private TableColumn<ChamadoDto, String> tituloColumn;
+    @FXML
+    private TableColumn<ChamadoDto, String> clienteColumn;
+    @FXML
+    private TableColumn<ChamadoDto, StatusChamado> statusColumn;
+    @FXML
+    private TableColumn<ChamadoDto, PrioridadeChamado> prioridadeColumn;
+    @FXML
+    private TableColumn<ChamadoDto, LocalDateTime> dataColumn;
 
     private final ApiService apiService = new ApiService();
 
@@ -102,8 +110,8 @@ public class ChamadosController {
             FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("detalhes-chamado-view.fxml"));
             Scene scene = new Scene(loader.load());
 
-            // --- ESTA É A CORREÇÃO ---
-            // Usamos MainApp.class para garantir que o caminho para o CSS seja encontrado
+            // --- A CORREÇÃO ESTÁ AQUI ---
+            // Esta linha garante que o styles.css seja aplicado na nova janela
             String css = MainApp.class.getResource("styles.css").toExternalForm();
             scene.getStylesheets().add(css);
 

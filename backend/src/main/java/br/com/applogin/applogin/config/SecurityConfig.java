@@ -34,16 +34,13 @@ public class SecurityConfig {
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
-                .csrf(csrf -> csrf.disable()) // CSRF desabilitado para a API
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
-                        // CORREÇÃO: Usando hasRole para seguir a convenção do Spring.
                         .requestMatchers("/api/tecnico/**").hasRole("TECNICO")
                         .anyRequest().authenticated()
                 )
-                // A linha abaixo foi removida por ser redundante, o Spring já injeta o provider.
-                // .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -53,15 +50,13 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                // A regra de ignorar CSRF para /api/** foi removida pois o outro filtro já cuida disso.
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/css/**", "/js/**", "/images/**",
                                 "/login", "/cadastroUsuario", "/verify",
                                 "/ws-chat-web/**", "/ws-chat-java/**"
                         ).permitAll()
-                        // CORREÇÃO: Usando hasRole para seguir a convenção do Spring.
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // <-- REGRA ATUALIZADA
                         .requestMatchers("/chamados/**").hasRole("CLIENTE")
                         .requestMatchers("/").hasAnyRole("CLIENTE", "ADMIN")
                         .anyRequest().authenticated()

@@ -39,7 +39,6 @@ public class ChatMessageCell extends ListCell<MensagemDto> {
         } else {
             // Carrega o FXML apenas uma vez por célula para otimizar a performance
             if (fxmlLoader == null) {
-                // A CORREÇÃO PRINCIPAL ESTÁ AQUI: Usando MainApp para o caminho absoluto
                 fxmlLoader = new FXMLLoader(MainApp.class.getResource("chat-message-cell.fxml"));
                 fxmlLoader.setController(this);
                 try {
@@ -58,14 +57,14 @@ public class ChatMessageCell extends ListCell<MensagemDto> {
                 timestampLabel.setText("");
             }
 
-            // Lógica para alinhar a "bolha" da mensagem e mudar o estilo
+            // Lógica para alinhar a "bolha" da mensagem e aplicar o estilo do CSS
             String userRole = mensagem.getAutor().getRole();
             if ("TECNICO".equals(userRole)) {
                 messageContainer.setAlignment(Pos.CENTER_RIGHT);
-                messageBubble.getStyleClass().setAll("message-bubble", "tecnico-bubble");
+                messageBubble.getStyleClass().setAll("message-bubble", "message-bubble-tecnico");
             } else {
                 messageContainer.setAlignment(Pos.CENTER_LEFT);
-                messageBubble.getStyleClass().setAll("message-bubble", "cliente-bubble");
+                messageBubble.getStyleClass().setAll("message-bubble", "message-bubble-client");
             }
 
             // Define o conteúdo gráfico da célula
