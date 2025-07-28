@@ -37,8 +37,10 @@ body {
 }
 
 .logo {
-    margin-bottom: 1rem;
-}
+     width: 80px;
+     height: auto;
+     margin-bottom: 1rem;
+ }
 
 h2 {
     color: var(--text-dark);
@@ -114,3 +116,4 @@ h2 {
     bottom: 20px;
     text-align: center;
     width:
+
