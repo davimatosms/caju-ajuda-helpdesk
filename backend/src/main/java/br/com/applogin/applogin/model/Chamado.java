@@ -25,6 +25,9 @@ public class Chamado {
 
     private LocalDateTime dataCriacao;
 
+    @Column(name = "data_fechamento")
+    private LocalDateTime dataFechamento; // <-- NOVO CAMPO
+
     @Enumerated(EnumType.STRING)
     private StatusChamado status;
 
@@ -49,115 +52,35 @@ public class Chamado {
     @Enumerated(EnumType.STRING)
     private StatusSla statusSla = StatusSla.NO_PRAZO;
 
-    // Construtor padrão (essencial para o JPA)
     public Chamado() {
     }
 
-    // Construtor com todos os campos
-    public Chamado(Long id, String titulo, String descricao, LocalDateTime dataCriacao, StatusChamado status, PrioridadeChamado prioridade, Usuario cliente, List<Mensagem> mensagens, LocalDateTime dataLimitePrimeiraResposta, LocalDateTime dataLimiteResolucao, StatusSla statusSla) {
-        this.id = id;
-        this.titulo = titulo;
-        this.descricao = descricao;
-        this.dataCriacao = dataCriacao;
-        this.status = status;
-        this.prioridade = prioridade;
-        this.cliente = cliente;
-        this.mensagens = mensagens;
-        this.dataLimitePrimeiraResposta = dataLimitePrimeiraResposta;
-        this.dataLimiteResolucao = dataLimiteResolucao;
-        this.statusSla = statusSla;
-    }
-
     // Getters e Setters
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public LocalDateTime getDataCriacao() { return dataCriacao; }
+    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
+    public LocalDateTime getDataFechamento() { return dataFechamento; } // <-- NOVO GETTER E SETTER
+    public void setDataFechamento(LocalDateTime dataFechamento) { this.dataFechamento = dataFechamento; }
+    public StatusChamado getStatus() { return status; }
+    public void setStatus(StatusChamado status) { this.status = status; }
+    public PrioridadeChamado getPrioridade() { return prioridade; }
+    public void setPrioridade(PrioridadeChamado prioridade) { this.prioridade = prioridade; }
+    public Usuario getCliente() { return cliente; }
+    public void setCliente(Usuario cliente) { this.cliente = cliente; }
+    public List<Mensagem> getMensagens() { return mensagens; }
+    public void setMensagens(List<Mensagem> mensagens) { this.mensagens = mensagens; }
+    public LocalDateTime getDataLimitePrimeiraResposta() { return dataLimitePrimeiraResposta; }
+    public void setDataLimitePrimeiraResposta(LocalDateTime dataLimitePrimeiraResposta) { this.dataLimitePrimeiraResposta = dataLimitePrimeiraResposta; }
+    public LocalDateTime getDataLimiteResolucao() { return dataLimiteResolucao; }
+    public void setDataLimiteResolucao(LocalDateTime dataLimiteResolucao) { this.dataLimiteResolucao = dataLimiteResolucao; }
+    public StatusSla getStatusSla() { return statusSla; }
+    public void setStatusSla(StatusSla statusSla) { this.statusSla = statusSla; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
-
-    public StatusChamado getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusChamado status) {
-        this.status = status;
-    }
-
-    public PrioridadeChamado getPrioridade() {
-        return prioridade;
-    }
-
-    public void setPrioridade(PrioridadeChamado prioridade) {
-        this.prioridade = prioridade;
-    }
-
-    public Usuario getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Usuario cliente) {
-        this.cliente = cliente;
-    }
-
-    public List<Mensagem> getMensagens() {
-        return mensagens;
-    }
-
-    public void setMensagens(List<Mensagem> mensagens) {
-        this.mensagens = mensagens;
-    }
-
-    public LocalDateTime getDataLimitePrimeiraResposta() {
-        return dataLimitePrimeiraResposta;
-    }
-
-    public void setDataLimitePrimeiraResposta(LocalDateTime dataLimitePrimeiraResposta) {
-        this.dataLimitePrimeiraResposta = dataLimitePrimeiraResposta;
-    }
-
-    public LocalDateTime getDataLimiteResolucao() {
-        return dataLimiteResolucao;
-    }
-
-    public void setDataLimiteResolucao(LocalDateTime dataLimiteResolucao) {
-        this.dataLimiteResolucao = dataLimiteResolucao;
-    }
-
-    public StatusSla getStatusSla() {
-        return statusSla;
-    }
-
-    public void setStatusSla(StatusSla statusSla) {
-        this.statusSla = statusSla;
-    }
-
-    // --- NOVO MÉTODO HELPER PARA ANEXOS ---
     public List<Anexo> getAnexos() {
         if (this.mensagens == null) {
             return new ArrayList<>();
@@ -167,7 +90,6 @@ public class Chamado {
                 .collect(Collectors.toList());
     }
 
-    // equals() e hashCode() - Baseados apenas no ID para entidades
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -181,21 +103,6 @@ public class Chamado {
         return Objects.hash(id);
     }
 
-    // toString() - Cuidado para não incluir listas com relacionamento bidirecional
-    @Override
-    public String toString() {
-        return "Chamado{" +
-                "id=" + id +
-                ", titulo='" + titulo + '\'' +
-                ", dataCriacao=" + dataCriacao +
-                ", status=" + status +
-                ", prioridade=" + prioridade +
-                ", clienteId=" + (cliente != null ? cliente.getId() : null) +
-                ", statusSla=" + statusSla +
-                '}';
-    }
-
-    // Método de ciclo de vida do JPA
     @PrePersist
     protected void onCreate() {
         dataCriacao = LocalDateTime.now();

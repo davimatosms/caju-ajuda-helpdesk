@@ -26,14 +26,14 @@ public class ChatController {
             // Delega toda a lógica de negócio para o ChatService
             Mensagem mensagemSalva = chatService.processarEEnviarMensagem(chatMessageDto, principal);
 
-            // Envia a mensagem via WebSocket para o tópico do chamado
+
             MensagemDto mensagemDeResposta = new MensagemDto(mensagemSalva);
             messagingTemplate.convertAndSend("/topic/chamados/" + mensagemSalva.getChamado().getId(), mensagemDeResposta);
 
         } catch (Exception e) {
-            // É uma boa prática logar o erro aqui
+
             System.err.println("Erro ao processar mensagem: " + e.getMessage());
-            // Opcional: notificar o usuário sobre o erro via WebSocket
+
         }
     }
 }

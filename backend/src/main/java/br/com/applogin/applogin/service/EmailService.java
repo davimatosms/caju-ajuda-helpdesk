@@ -1,5 +1,6 @@
 package br.com.applogin.applogin.service;
 
+import br.com.applogin.applogin.model.Chamado;
 import br.com.applogin.applogin.model.Mensagem;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -30,38 +31,32 @@ public class EmailService {
 
 
     public void enviarEmailDeVerificacao(String para, String nomeUsuario, String urlDeVerificacao) {
-        logger.info("Enviando e-mail de VERIFICAÇÃO para {}", para);
-        try {
-            Context context = new Context();
-            context.setVariable("username", nomeUsuario);
-            context.setVariable("verificationUrl", urlDeVerificacao);
-            String corpoEmailHtml = templateEngine.process("verificacao-email", context);
-            enviarEmail(para, "Caju Ajuda - Confirme sua conta", corpoEmailHtml);
-        } catch (Exception e) {
-            logger.error("Falha ao enviar e-mail de verificação para {}: {}", para, e.getMessage());
-            throw new RuntimeException("Erro ao enviar e-mail de verificação.", e);
-        }
+        // ... (seu método existente) ...
     }
 
 
     @Async
     public void enviarNotificacaoDeNovaMensagem(Mensagem mensagem) {
-        String para = mensagem.getChamado().getCliente().getEmail();
-        String nomeCliente = mensagem.getChamado().getCliente().getNome().split(" ")[0];
-        Long chamadoId = mensagem.getChamado().getId();
+        // ... (seu método existente) ...
+    }
 
-        logger.info("Enviando e-mail de NOTIFICAÇÃO (assíncrono) para {} sobre o chamado #{}", para, chamadoId);
+    // --- NOVO MÉTODO ADICIONADO ---
+    @Async
+    public void enviarNotificacaoDeChamadoFechado(Chamado chamado) {
+        String para = chamado.getCliente().getEmail();
+        String nomeCliente = chamado.getCliente().getNome().split(" ")[0];
+
+        logger.info("Enviando e-mail de NOTIFICAÇÃO de fechamento para {} sobre o chamado #{}", para, chamado.getId());
         try {
             Context context = new Context();
             context.setVariable("nomeCliente", nomeCliente);
-            context.setVariable("chamadoId", chamadoId);
-            context.setVariable("textoMensagem", mensagem.getTexto());
+            context.setVariable("chamadoId", chamado.getId());
+            context.setVariable("chamadoTitulo", chamado.getTitulo());
 
-            String corpoEmailHtml = templateEngine.process("notificacao-resposta", context);
-            enviarEmail(para, "Você recebeu uma nova resposta no chamado #" + chamadoId, corpoEmailHtml);
+            String corpoEmailHtml = templateEngine.process("notificacao-fechamento", context);
+            enviarEmail(para, "Seu chamado #" + chamado.getId() + " foi resolvido!", corpoEmailHtml);
         } catch (Exception e) {
-            logger.error("Falha ao enviar e-mail de notificação para {}: {}", para, e.getMessage());
-
+            logger.error("Falha ao enviar e-mail de notificação de fechamento para {}: {}", para, e.getMessage());
         }
     }
 

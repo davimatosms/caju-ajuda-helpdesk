@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="font-family: Arial, sans-serif;">
+<h2>Olá, <span th:text="${nomeCliente}">Cliente</span>!</h2>
+<p>Boas notícias! O seu chamado <b th:text="'#' + ${chamadoId} + ' - ' + ${chamadoTitulo}">#123</b> foi resolvido e fechado pela nossa equipe.</p>
+<p>Se precisar de mais alguma coisa, não hesite em abrir um novo chamado na plataforma.</p>
+<p>Atenciosamente,<br/>Equipe Caju Ajuda</p>
+</body>
+</html>

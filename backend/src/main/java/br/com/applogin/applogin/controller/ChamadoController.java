@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,13 +36,26 @@ public class ChamadoController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    // --- MÉTODO ATUALIZADO: AGORA MOSTRA APENAS CHAMADOS ABERTOS/EM ANDAMENTO ---
     @GetMapping("/meus")
     public String listarMeusChamados(Model model) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Usuario cliente = usuarioRepository.findByEmail(email);
-        List<Chamado> chamados = chamadoRepository.findByCliente(cliente);
+        // Busca todos os chamados EXCETO os fechados
+        List<Chamado> chamados = chamadoRepository.findByClienteAndStatusNotIn(cliente, List.of(StatusChamado.FECHADO));
         model.addAttribute("chamados", chamados);
         return "meus-chamados";
+    }
+
+    // --- NOVO MÉTODO PARA CHAMADOS FECHADOS ---
+    @GetMapping("/fechados")
+    public String listarChamadosFechados(Model model) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario cliente = usuarioRepository.findByEmail(email);
+        // Busca apenas os chamados FECHADOS
+        List<Chamado> chamados = chamadoRepository.findByClienteAndStatusIn(cliente, List.of(StatusChamado.FECHADO));
+        model.addAttribute("chamados", chamados);
+        return "chamados-fechados"; // Renderiza a nova página
     }
 
     @GetMapping("/novo")
@@ -67,13 +79,11 @@ public class ChamadoController {
             String emailUsuarioLogado = SecurityContextHolder.getContext().getAuthentication().getName();
             Usuario cliente = usuarioRepository.findByEmail(emailUsuarioLogado);
             chamado.setCliente(cliente);
-
             Mensagem primeiraMensagem = new Mensagem();
             primeiraMensagem.setTexto(chamado.getDescricao());
             primeiraMensagem.setAutor(cliente);
             primeiraMensagem.setChamado(chamado);
             primeiraMensagem.setDataEnvio(LocalDateTime.now());
-
             for (MultipartFile file : anexosFile) {
                 if (file != null && !file.isEmpty()) {
                     String nomeUnico = fileStorageService.storeFile(file);
@@ -85,7 +95,6 @@ public class ChamadoController {
                 }
             }
             chamado.getMensagens().add(primeiraMensagem);
-
             Chamado chamadoSalvo = chamadoService.criarNovoChamado(chamado);
             redirectAttributes.addFlashAttribute("success_message", "Chamado #" + chamadoSalvo.getId() + " aberto com sucesso!");
         } catch (Exception e) {
@@ -94,19 +103,14 @@ public class ChamadoController {
         return "redirect:/chamados/meus";
     }
 
-    // --- CORREÇÃO AQUI ---
-    // Adiciona uma regra (regex) para que {id} aceite apenas números,
-    // resolvendo o conflito com a rota "/meus".
     @GetMapping("/{id:[0-9]+}")
     public String exibirDetalhesChamado(@PathVariable("id") Long id, Model model) {
         Optional<Chamado> chamadoOpt = chamadoRepository.findById(id);
         if (chamadoOpt.isEmpty()) {
             return "redirect:/chamados/meus?error=not_found";
         }
-
         Chamado chamado = chamadoOpt.get();
-        ChamadoDetalhesDto chamadoDto = new ChamadoDetalhesDto(chamado);
-        model.addAttribute("chamado", chamadoDto);
+        model.addAttribute("chamado", new ChamadoDetalhesDto(chamado));
         return "detalhes-chamado";
     }
 

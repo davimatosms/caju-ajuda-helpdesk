@@ -3,13 +3,15 @@ package br.com.applogin.applogin.dto;
 import br.com.applogin.applogin.model.Chamado;
 import br.com.applogin.applogin.model.StatusChamado;
 import br.com.applogin.applogin.model.StatusSla;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 // Este DTO é usado para enviar todos os detalhes de um chamado para a API e para as views web
-public class ChamadoDetalhesDto {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class DetalhesChamadoDto {
     private Long id;
     private String titulo;
     private String descricao;
@@ -20,7 +22,7 @@ public class ChamadoDetalhesDto {
     private StatusSla statusSla;
     private LocalDateTime dataLimiteResolucao;
 
-    public ChamadoDetalhesDto(Chamado chamado) {
+    public DetalhesChamadoDto(Chamado chamado) {
         this.id = chamado.getId();
         this.titulo = chamado.getTitulo();
         this.nomeCliente = chamado.getCliente().getNome();

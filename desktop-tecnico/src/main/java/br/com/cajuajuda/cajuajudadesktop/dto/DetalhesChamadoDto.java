@@ -8,30 +8,37 @@ import java.util.List;
 public class DetalhesChamadoDto {
     private Long id;
     private String titulo;
+    private String descricao;
     private String nomeCliente;
-    private StatusChamado status; // <-- CAMPO ADICIONADO
+    private StatusChamado status;
     private List<MensagemDto> mensagens;
+    private LocalDateTime dataCriacao;
+
+    // --- CAMPOS ADICIONADOS ---
     private String statusSla;
     private LocalDateTime dataLimiteResolucao;
 
-    // Construtor vazio para o Jackson (deserializador JSON)
+    // Construtor vazio para o Jackson
     public DetalhesChamadoDto() {
     }
 
-    // Getters e Setters
+    // Getters e Setters para todos os campos
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
     public String getNomeCliente() { return nomeCliente; }
     public void setNomeCliente(String nomeCliente) { this.nomeCliente = nomeCliente; }
-
-    // Getter e Setter para o campo Status
     public StatusChamado getStatus() { return status; }
     public void setStatus(StatusChamado status) { this.status = status; }
-
     public List<MensagemDto> getMensagens() { return mensagens; }
     public void setMensagens(List<MensagemDto> mensagens) { this.mensagens = mensagens; }
+    public LocalDateTime getDataCriacao() { return dataCriacao; }
+    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
+
+    // --- GETTERS E SETTERS ADICIONADOS ---
     public String getStatusSla() { return statusSla; }
     public void setStatusSla(String statusSla) { this.statusSla = statusSla; }
     public LocalDateTime getDataLimiteResolucao() { return dataLimiteResolucao; }
