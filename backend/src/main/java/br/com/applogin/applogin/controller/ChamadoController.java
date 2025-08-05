@@ -27,35 +27,28 @@ import java.util.Optional;
 @RequestMapping("/chamados")
 public class ChamadoController {
 
-    @Autowired
-    private ChamadoRepository chamadoRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private ChamadoService chamadoService;
-    @Autowired
-    private FileStorageService fileStorageService;
+    @Autowired private ChamadoRepository chamadoRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private ChamadoService chamadoService;
+    @Autowired private FileStorageService fileStorageService;
 
-    // --- MÉTODO ATUALIZADO: AGORA MOSTRA APENAS CHAMADOS ABERTOS/EM ANDAMENTO ---
+    // ... (os outros métodos permanecem iguais) ...
     @GetMapping("/meus")
     public String listarMeusChamados(Model model) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Usuario cliente = usuarioRepository.findByEmail(email);
-        // Busca todos os chamados EXCETO os fechados
         List<Chamado> chamados = chamadoRepository.findByClienteAndStatusNotIn(cliente, List.of(StatusChamado.FECHADO));
         model.addAttribute("chamados", chamados);
         return "meus-chamados";
     }
 
-    // --- NOVO MÉTODO PARA CHAMADOS FECHADOS ---
     @GetMapping("/fechados")
     public String listarChamadosFechados(Model model) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Usuario cliente = usuarioRepository.findByEmail(email);
-        // Busca apenas os chamados FECHADOS
         List<Chamado> chamados = chamadoRepository.findByClienteAndStatusIn(cliente, List.of(StatusChamado.FECHADO));
         model.addAttribute("chamados", chamados);
-        return "chamados-fechados"; // Renderiza a nova página
+        return "chamados-fechados";
     }
 
     @GetMapping("/novo")
@@ -79,11 +72,13 @@ public class ChamadoController {
             String emailUsuarioLogado = SecurityContextHolder.getContext().getAuthentication().getName();
             Usuario cliente = usuarioRepository.findByEmail(emailUsuarioLogado);
             chamado.setCliente(cliente);
+
             Mensagem primeiraMensagem = new Mensagem();
             primeiraMensagem.setTexto(chamado.getDescricao());
             primeiraMensagem.setAutor(cliente);
             primeiraMensagem.setChamado(chamado);
             primeiraMensagem.setDataEnvio(LocalDateTime.now());
+
             for (MultipartFile file : anexosFile) {
                 if (file != null && !file.isEmpty()) {
                     String nomeUnico = fileStorageService.storeFile(file);
@@ -91,6 +86,10 @@ public class ChamadoController {
                     anexo.setNomeArquivo(file.getOriginalFilename());
                     anexo.setTipoArquivo(file.getContentType());
                     anexo.setNomeUnico(nomeUnico);
+
+                    // --- CORREÇÃO AQUI: Estabelece a ligação bidirecional ---
+                    anexo.setMensagem(primeiraMensagem);
+
                     primeiraMensagem.getAnexos().add(anexo);
                 }
             }
@@ -99,6 +98,7 @@ public class ChamadoController {
             redirectAttributes.addFlashAttribute("success_message", "Chamado #" + chamadoSalvo.getId() + " aberto com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error_message", "Erro ao abrir o chamado: " + e.getMessage());
+            e.printStackTrace(); // Para vermos o erro completo no log
         }
         return "redirect:/chamados/meus";
     }

@@ -29,34 +29,38 @@ public class SecurityConfig {
     @Autowired
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
+    // --- Filtro de Segurança da API (Stateless com JWT) ---
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/**")
+                .securityMatcher("/api/**") // Aplica esta configuração APENAS para /api/**
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll() // Rotas de login/registo são públicas
                         .requestMatchers("/api/tecnico/**").hasRole("TECNICO")
+                        .requestMatchers("/api/cliente/**").hasRole("CLIENTE")
                         .anyRequest().authenticated()
                 )
+                // Adiciona o nosso filtro JWT antes do filtro padrão de autenticação
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // --- Filtro de Segurança da Web (Stateful com Sessões e Formulário) ---
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Esta configuração aplica-se a TODAS as outras rotas que NÃO são /api/**
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/css/**", "/js/**", "/images/**",
-                                "/login", "/cadastroUsuario", "/verify",
-                                "/ws-chat-web/**", "/ws-chat-java/**"
+                                "/login", "/cadastroUsuario", "/verify", "/registro-sucesso", "/verificacao-sucesso"
                         ).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // <-- REGRA ATUALIZADA
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/chamados/**").hasRole("CLIENTE")
                         .requestMatchers("/").hasAnyRole("CLIENTE", "ADMIN")
                         .anyRequest().authenticated()

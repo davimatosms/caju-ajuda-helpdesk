@@ -10,9 +10,11 @@ import {
     Image
 } from 'react-native';
 
-// --- IMPORTANTE ---
-// Este é o IP do seu computador, apontando para o novo endpoint de registo
-const API_REGISTER_URL = 'http://192.168.15.12:8080/api/auth/register';
+// --- IMPORTANTE: USE O SEU IP AQUI ---
+// URLs da API para os dois endpoints que vamos chamar
+const API_BASE_URL = 'http://192.168.15.12:8080';
+const API_REGISTER_URL = `${API_BASE_URL}/api/auth/register`;
+const API_RESEND_EMAIL_URL = `${API_BASE_URL}/api/reenviar-verificacao`;
 
 export default function RegisterScreen({ navigation }) {
     const [nome, setNome] = useState('');
@@ -29,37 +31,34 @@ export default function RegisterScreen({ navigation }) {
         setIsLoading(true);
 
         try {
-            const response = await fetch(API_REGISTER_URL, {
+            // --- PASSO 1: Tenta registar o utilizador ---
+            const registerResponse = await fetch(API_REGISTER_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    nome: nome,
-                    email: email,
-                    senha: senha,
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email, senha }),
             });
 
-            if (response.ok) {
-                // Se o registo for bem-sucedido (status 200)
-                Alert.alert(
-                    'Sucesso!',
-                    'Sua conta foi criada. Enviámos um e-mail de verificação para você.',
-                    [
-                        // Botão no alerta que, ao ser pressionado, volta para a tela de login
-                        { text: 'OK', onPress: () => navigation.goBack() }
-                    ]
-                );
-            } else {
-                // Se houver um erro (ex: e-mail já existe), mostra a mensagem do backend
-                const errorText = await response.text();
-                Alert.alert('Erro no Registo', errorText || 'Não foi possível criar a sua conta.');
+            if (!registerResponse.ok) {
+                const errorText = await registerResponse.text();
+                throw new Error(errorText || 'Não foi possível criar a sua conta.');
             }
 
+            // --- PASSO 2: Se o registo funcionou, dispara o e-mail ---
+            await fetch(API_RESEND_EMAIL_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email }),
+            });
+
+            // Mostra a mensagem de sucesso
+            Alert.alert(
+                'Sucesso!',
+                'Sua conta foi criada. Enviámos um e-mail de verificação para você.',
+                [{ text: 'OK', onPress: () => navigation.goBack() }] // Volta para a tela de login
+            );
+
         } catch (error) {
-            console.error(error);
-            Alert.alert('Erro de Conexão', 'Não foi possível conectar ao servidor.');
+            Alert.alert('Erro no Registo', error.message);
         } finally {
             setIsLoading(false);
         }
@@ -75,6 +74,7 @@ export default function RegisterScreen({ navigation }) {
                 placeholder="Nome Completo"
                 value={nome}
                 onChangeText={setNome}
+                autoCapitalize="words"
             />
             <TextInput
                 style={styles.input}
