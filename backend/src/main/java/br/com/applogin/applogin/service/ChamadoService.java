@@ -1,7 +1,7 @@
 package br.com.applogin.applogin.service;
 
-import br.com.applogin.applogin.model.Chamado;
-import br.com.applogin.applogin.model.SlaRegra;
+import br.com.applogin.applogin.dto.NovoChamadoDto;
+import br.com.applogin.applogin.model.*;
 import br.com.applogin.applogin.repository.ChamadoRepository;
 import br.com.applogin.applogin.repository.SlaRegraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,27 +22,43 @@ public class ChamadoService {
 
     @Transactional
     public Chamado criarNovoChamado(Chamado chamado) {
-        // LÓGICA DO SLA
-        // 1. Buscar a regra de SLA correspondente à prioridade do chamado
         Optional<SlaRegra> regraOpt = slaRegraRepository.findByPrioridade(chamado.getPrioridade());
-
         if (regraOpt.isPresent()) {
             SlaRegra regra = regraOpt.get();
             LocalDateTime agora = LocalDateTime.now();
-
-            // 2. Calcular os prazos com base na regra encontrada
             LocalDateTime prazoResposta = agora.plusHours(regra.getTempoRespostaHoras());
             LocalDateTime prazoResolucao = agora.plusHours(regra.getTempoResolucaoHoras());
-
-            // 3. Definir os prazos no objeto Chamado
             chamado.setDataLimitePrimeiraResposta(prazoResposta);
             chamado.setDataLimiteResolucao(prazoResolucao);
-        } else {
-            // Opcional: Logar um aviso se nenhuma regra for encontrada para a prioridade
-            System.out.println("Aviso: Nenhuma regra de SLA encontrada para a prioridade " + chamado.getPrioridade());
+        }
+        return chamadoRepository.save(chamado);
+    }
+
+    @Transactional
+    public Chamado criarNovoChamadoPeloCliente(NovoChamadoDto novoChamadoDto, Usuario cliente) {
+        Chamado novoChamado = new Chamado();
+        novoChamado.setCliente(cliente);
+        novoChamado.setTitulo(novoChamadoDto.getTitulo());
+        novoChamado.setDescricao(novoChamadoDto.getDescricao());
+        novoChamado.setPrioridade(novoChamadoDto.getPrioridade());
+        novoChamado.setStatus(StatusChamado.ABERTO);
+        novoChamado.setDataCriacao(LocalDateTime.now());
+        novoChamado.setStatusSla(StatusSla.NO_PRAZO);
+
+        Mensagem primeiraMensagem = new Mensagem();
+        primeiraMensagem.setTexto(novoChamadoDto.getDescricao());
+        primeiraMensagem.setAutor(cliente);
+        primeiraMensagem.setDataEnvio(LocalDateTime.now());
+        primeiraMensagem.setChamado(novoChamado);
+        novoChamado.getMensagens().add(primeiraMensagem);
+
+        Optional<SlaRegra> regraOpt = slaRegraRepository.findByPrioridade(novoChamado.getPrioridade());
+        if (regraOpt.isPresent()) {
+            SlaRegra regra = regraOpt.get();
+            novoChamado.setDataLimitePrimeiraResposta(novoChamado.getDataCriacao().plusHours(regra.getTempoRespostaHoras()));
+            novoChamado.setDataLimiteResolucao(novoChamado.getDataCriacao().plusHours(regra.getTempoResolucaoHoras()));
         }
 
-        // Salva o chamado já com os prazos de SLA calculados
-        return chamadoRepository.save(chamado);
+        return chamadoRepository.save(novoChamado);
     }
 }

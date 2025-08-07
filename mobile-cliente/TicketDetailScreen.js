@@ -1,46 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { Client } from '@stomp/stompjs';
 
-const API_CLIENTE_URL = 'http://192.168.15.12:8080/api/cliente';
+const API_URL = 'http://192.168.15.12:8080';
 
 export default function TicketDetailScreen({ route }) {
     const { chamadoId } = route.params;
     const [chamado, setChamado] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [novaMensagem, setNovaMensagem] = useState('');
+    const flatListRef = useRef(null);
+
+    const fetchDetalhes = async () => {
+        setIsLoading(true);
+        try {
+            const token = await SecureStore.getItemAsync('userToken');
+            const response = await fetch(`${API_URL}/api/cliente/chamados/${chamadoId}`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setChamado(data);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar detalhes:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchDetalhes = async () => {
-            try {
-                const token = await SecureStore.getItemAsync('userToken');
-                const response = await fetch(`${API_CLIENTE_URL}/chamados/${chamadoId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setChamado(data);
-                }
-            } catch (error) {
-                console.error("Erro ao buscar detalhes do chamado:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchDetalhes();
+
+        const client = new Client({
+            brokerURL: `ws://${API_URL.split('//')[1]}/ws-chat-web`,
+            onConnect: () => {
+                client.subscribe(`/topic/chamados/${chamadoId}`, (payload) => {
+                    const message = JSON.parse(payload.body);
+                    setChamado(prevChamado => ({
+                        ...prevChamado,
+                        mensagens: [...prevChamado.mensagens, message]
+                    }));
+                });
+            },
+            onStompError: (frame) => {
+                console.error('Broker reported error: ' + frame.headers['message']);
+                console.error('Additional details: ' + frame.body);
+            },
+        });
+
+        client.activate();
+
+        return () => {
+            client.deactivate();
+        };
     }, [chamadoId]);
 
+
+    const handleSendMessage = async () => {
+        if (!novaMensagem.trim()) return;
+        try {
+            const token = await SecureStore.getItemAsync('userToken');
+            await fetch(`${API_URL}/api/cliente/chamados/${chamadoId}/mensagens`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ texto: novaMensagem }),
+            });
+            setNovaMensagem('');
+        } catch (error) {
+            Alert.alert('Erro', 'Não foi possível enviar a sua mensagem.');
+        }
+    };
+
     const renderMensagem = ({ item }) => (
-        <View style={[
-            styles.messageBubble,
-            item.autor.role === 'TECNICO'
-                ? styles.tecnicoBubble
-                : styles.clienteBubble
-        ]}>
+        <View style={[styles.messageBubble, item.autor.role === 'TECNICO' ? styles.tecnicoBubble : styles.clienteBubble]}>
             <Text style={styles.authorText}>{item.autor.nome}</Text>
             <Text style={styles.messageText}>{item.texto}</Text>
-            <Text style={styles.timestampText}>
-                {new Date(item.dataEnvio).toLocaleString('pt-BR')}
-            </Text>
+            <Text style={styles.timestampText}>{new Date(item.dataEnvio).toLocaleString('pt-BR')}</Text>
         </View>
     );
 
@@ -49,18 +89,37 @@ export default function TicketDetailScreen({ route }) {
     }
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.container}
+            keyboardVerticalOffset={90}
+        >
             <View style={styles.header}>
-                <Text style={styles.title}>{chamado.titulo}</Text>
+                <Text style={styles.title} numberOfLines={1}>{chamado.titulo}</Text>
                 <Text style={styles.status}>{chamado.status.replace('_', ' ')}</Text>
             </View>
+
             <FlatList
+                ref={flatListRef}
                 data={chamado.mensagens}
                 renderItem={renderMensagem}
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={styles.chatContainer}
+                onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
             />
-        </View>
+
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.textInput}
+                    value={novaMensagem}
+                    onChangeText={setNovaMensagem}
+                    placeholder="Digite sua mensagem..."
+                />
+                <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
+                    <Text style={styles.sendButtonText}>Enviar</Text>
+                </TouchableOpacity>
+            </View>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -68,13 +127,38 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f0f2f5' },
     loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: { padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e2e8f0' },
-    title: { fontSize: 22, fontWeight: 'bold', color: '#1a202c', marginBottom: 4 },
+    title: { fontSize: 20, fontWeight: 'bold', color: '#1a202c', marginBottom: 4 },
     status: { fontSize: 14, color: '#4a5568', textTransform: 'capitalize' },
     chatContainer: { padding: 16 },
     messageBubble: { borderRadius: 12, padding: 12, marginBottom: 10, maxWidth: '80%' },
     clienteBubble: { backgroundColor: '#e2e8f0', alignSelf: 'flex-start' },
-    tecnicoBubble: { backgroundColor: '#fde68a', alignSelf: 'flex-end' }, // Cor diferente para o técnico
+    tecnicoBubble: { backgroundColor: '#fde68a', alignSelf: 'flex-end' },
     authorText: { fontWeight: 'bold', marginBottom: 4, color: '#4a5568' },
     messageText: { fontSize: 16, color: '#1a202c' },
     timestampText: { fontSize: 10, color: '#718096', alignSelf: 'flex-end', marginTop: 8 },
+    inputContainer: {
+        flexDirection: 'row',
+        padding: 10,
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderColor: '#e2e8f0',
+    },
+    textInput: {
+        flex: 1,
+        height: 40,
+        borderWidth: 1,
+        borderColor: '#dee2e6',
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        backgroundColor: '#f8f9fa',
+    },
+    sendButton: {
+        marginLeft: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f97316',
+        borderRadius: 20,
+        paddingHorizontal: 20,
+    },
+    sendButtonText: { color: '#fff', fontWeight: 'bold' },
 });

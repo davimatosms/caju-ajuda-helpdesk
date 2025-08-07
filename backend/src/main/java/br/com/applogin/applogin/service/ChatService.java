@@ -1,6 +1,7 @@
 package br.com.applogin.applogin.service;
 
 import br.com.applogin.applogin.dto.ChatMessageDto;
+import br.com.applogin.applogin.dto.MensagemDto;
 import br.com.applogin.applogin.model.Chamado;
 import br.com.applogin.applogin.model.Mensagem;
 import br.com.applogin.applogin.model.Usuario;
@@ -9,6 +10,7 @@ import br.com.applogin.applogin.repository.ChamadoRepository;
 import br.com.applogin.applogin.repository.MensagemRepository;
 import br.com.applogin.applogin.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,20 +20,14 @@ import java.time.LocalDateTime;
 @Service
 public class ChatService {
 
-    @Autowired
-    private MensagemRepository mensagemRepository;
-    @Autowired
-    private ChamadoRepository chamadoRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private EmailService emailService;
+    @Autowired private MensagemRepository mensagemRepository;
+    @Autowired private ChamadoRepository chamadoRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private EmailService emailService;
+    @Autowired private SimpMessagingTemplate messagingTemplate;
 
-    // A transação agora engloba toda a operação
     @Transactional
-    public Mensagem processarEEnviarMensagem(ChatMessageDto chatMessageDto, Principal principal) {
-        Usuario autor = usuarioRepository.findByEmail(principal.getName());
-        // Usamos orElseThrow para garantir que o chamado existe
+    public void processarMensagemDoWebSocket(ChatMessageDto chatMessageDto, Usuario autor) {
         Chamado chamado = chamadoRepository.findById(chatMessageDto.getChamadoId())
                 .orElseThrow(() -> new RuntimeException("Chamado não encontrado"));
 
@@ -40,13 +36,30 @@ public class ChatService {
         mensagem.setChamado(chamado);
         mensagem.setAutor(autor);
         mensagem.setDataEnvio(LocalDateTime.now());
-        mensagemRepository.save(mensagem);
+        Mensagem mensagemSalva = mensagemRepository.save(mensagem);
 
-        // Se o autor for técnico, a notificação por e-mail é enviada DENTRO da mesma transação
-        if (autor.getRole() == UsuarioRole.TECNICO && chamado.getCliente() != null) {
-            emailService.enviarNotificacaoDeNovaMensagem(mensagem);
+        // Notifica o WebSocket com a nova mensagem
+        messagingTemplate.convertAndSend("/topic/chamados/" + chamado.getId(), new MensagemDto(mensagemSalva));
+
+        // Envia notificação por e-mail se a mensagem for de um técnico
+        if (autor.getRole() == UsuarioRole.TECNICO) {
+            emailService.enviarNotificacaoDeNovaMensagem(mensagemSalva);
         }
+    }
 
-        return mensagem;
+    @Transactional
+    public void processarNovaMensagem(Long chamadoId, String texto, Usuario autor) {
+        Chamado chamado = chamadoRepository.findById(chamadoId)
+                .orElseThrow(() -> new RuntimeException("Chamado não encontrado com ID: " + chamadoId));
+
+        Mensagem mensagem = new Mensagem();
+        mensagem.setTexto(texto);
+        mensagem.setChamado(chamado);
+        mensagem.setAutor(autor);
+        mensagem.setDataEnvio(LocalDateTime.now());
+        Mensagem mensagemSalva = mensagemRepository.save(mensagem);
+
+        // A linha crucial: envia a mensagem salva para o WebSocket
+        messagingTemplate.convertAndSend("/topic/chamados/" + chamadoId, new MensagemDto(mensagemSalva));
     }
 }
