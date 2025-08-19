@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments :: head-links}"></div>
+    <title>Admin - Gerenciar Técnicos</title>
+</head>
+<body class="layout-dashboard">
+
+<nav th:replace="~{fragments :: navbar}"></nav>
+
+<div class="page-content-wrapper">
+    <main class="main-content">
+        <header>
+            <h1 class="display-6 fw-bold mb-4">Gerenciar Técnicos</h1>
+        </header>
+
+        <div th:if="${success_message}" class="alert alert-success" role="alert" th:text="${success_message}"></div>
+
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <section class="content-card p-4 h-100">
+                    <h5 class="mb-3">Cadastrar Novo Técnico</h5>
+                    <form th:action="@{/admin/tecnicos/novo}" th:object="${novoTecnico}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" th:field="*{nome}" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" th:field="*{email}" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="senha" class="form-label">Senha</label>
+                            <input type="password" class="form-control" th:field="*{senha}" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}"></div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Cadastrar Técnico</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <div class="col-lg-8 mb-4">
+                <section class="content-card p-4 h-100">
+                    <h5 class="mb-3">Técnicos Cadastrados</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="tecnico : ${tecnicos}">
+                                <td th:text="${tecnico.id}"></td>
+                                <td th:text="${tecnico.nome}"></td>
+                                <td th:text="${tecnico.email}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments :: footer}"></footer>
+</div>
+
+<div th:replace="~{fragments :: logout-modal}"></div>
+<div th:replace="~{fragments :: scripts}"></div>
+
+</body>
+</html>

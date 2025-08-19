@@ -1,57 +1,60 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Chamados Fechados - Caju Ajuda</title>
     <div th:replace="~{fragments :: head-links}"></div>
+    <title>Chamados Fechados - Caju Ajuda</title>
 </head>
-<body>
+<body class="layout-dashboard">
 
-<div th:replace="~{fragments :: navbar}"></div>
+<nav th:replace="~{fragments :: navbar}"></nav>
 
-<main class="container main-content">
-    <h1 class="display-6 fw-bold mb-4">Meus Chamados Fechados</h1>
+<div class="page-content-wrapper">
+    <main class="main-content">
+        <header>
+            <h1 class="display-6 fw-bold mb-4">Meus Chamados Fechados</h1>
+        </header>
 
-    <div class="card content-card p-4">
-        <div th:if="${#lists.isEmpty(chamados)}" class="text-center p-5">
-            <h4 class="text-muted">Você ainda não possui chamados fechados.</h4>
-        </div>
-        <div th:if="${not #lists.isEmpty(chamados)}" class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                <tr>
-                    <th scope="col">#ID</th>
-                    <th scope="col">Título</th>
-                    <th scope="col">Prioridade</th>
-                    <th scope="col">Data de Fechamento</th>
-                    <th scope="col" class="text-end">Ações</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="chamado : ${chamados}">
-                    <th scope="row" th:text="${chamado.id}"></th>
-                    <td th:text="${chamado.titulo}"></td>
-                    <td>
+        <section class="card content-card p-4">
+            <div th:if="${#lists.isEmpty(chamados)}" class="text-center p-5">
+                <h4 class="text-muted">Você ainda não possui chamados fechados.</h4>
+            </div>
+            <div th:if="${not #lists.isEmpty(chamados)}" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">#ID</th>
+                        <th scope="col">Título</th>
+                        <th scope="col">Prioridade</th>
+                        <th scope="col">Data de Fechamento</th>
+                        <th scope="col" class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="chamado : ${chamados}">
+                        <th scope="row" th:text="${chamado.id}"></th>
+                        <td th:text="${chamado.titulo}"></td>
+                        <td>
                             <span th:switch="${chamado.prioridade.name()}">
                                 <span th:case="'ALTA'" class="badge text-bg-danger" th:text="Alta"></span>
                                 <span th:case="'MEDIA'" class="badge text-bg-warning" th:text="Média"></span>
                                 <span th:case="'BAIXA'" class="badge text-bg-success" th:text="Baixa"></span>
                             </span>
-                    </td>
-                    <td th:text="${#temporals.format(chamado.dataFechamento, 'dd/MM/yyyy HH:mm')}"></td>
-                    <td class="text-end">
-                        <a th:href="@{/chamados/{id}(id=${chamado.id})}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-eye-fill"></i> Ver Histórico
-                        </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</main>
+                        </td>
+                        <td th:text="${#temporals.format(chamado.dataFechamento, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td class="text-end">
+                            <a th:href="@{/chamados/{id}(id=${chamado.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye-fill"></i> Ver Histórico
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer th:replace="~{fragments :: footer}"></footer>
+</div>
 
-<div th:replace="~{fragments :: footer}"></div>
 <div th:replace="~{fragments :: logout-modal}"></div>
 <div th:replace="~{fragments :: scripts}"></div>
 

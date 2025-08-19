@@ -1,54 +1,58 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin - Gerenciar Regras de SLA</title>
     <div th:replace="~{fragments :: head-links}"></div>
+    <title>Admin - Gerenciar Regras de SLA</title>
 </head>
-<body>
-<div th:replace="~{fragments :: navbar}"></div>
+<body class="layout-dashboard">
+<nav th:replace="~{fragments :: navbar}"></nav>
 
-<main class="container main-content">
-    <h1 class="h3 fw-bold mb-4">Gerenciar Regras de SLA</h1>
+<div class="page-content-wrapper">
+    <main class="main-content">
+        <header>
+            <h1 class="h3 fw-bold mb-4">Gerenciar Regras de SLA</h1>
+        </header>
 
-    <div th:if="${success_message}" class="alert alert-success" role="alert" th:text="${success_message}"></div>
-    <div th:if="${error_message}" class="alert alert-danger" role="alert" th:text="${error_message}"></div>
+        <div th:if="${success_message}" class="alert alert-success" role="alert" th:text="${success_message}"></div>
+        <div th:if="${error_message}" class="alert alert-danger" role="alert" th:text="${error_message}"></div>
 
-    <div class="content-card p-4">
-        <p class="text-muted">Ajuste os tempos (em horas) para a primeira resposta e para a resolução final de cada prioridade de chamado.</p>
+        <section class="content-card p-4">
+            <p class="text-muted">Ajuste os tempos (em horas) para a primeira resposta e para a resolução final de cada prioridade de chamado.</p>
 
-        <form th:action="@{/admin/sla/salvar}" th:object="${regrasForm}" method="post">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                <tr>
-                    <th>Prioridade</th>
-                    <th>Tempo de Resposta (horas)</th>
-                    <th>Tempo de Resolução (horas)</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="regra, iterStat : *{regras}">
-                    <input type="hidden" th:field="*{regras[__${iterStat.index}__].id}" />
-                    <input type="hidden" th:field="*{regras[__${iterStat.index}__].prioridade}" />
-                    <td class="fw-bold" th:text="${regra.prioridade}"></td>
-                    <td>
-                        <input type="number" class="form-control" th:field="*{regras[__${iterStat.index}__].tempoRespostaHoras}" required min="1" />
-                    </td>
-                    <td>
-                        <input type="number" class="form-control" th:field="*{regras[__${iterStat.index}__].tempoResolucaoHoras}" required min="1" />
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <form th:action="@{/admin/sla/salvar}" th:object="${regrasForm}" method="post">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Prioridade</th>
+                        <th>Tempo de Resposta (horas)</th>
+                        <th>Tempo de Resolução (horas)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="regra, iterStat : *{regras}">
+                        <input type="hidden" th:field="*{regras[__${iterStat.index}__].id}" />
+                        <input type="hidden" th:field="*{regras[__${iterStat.index}__].prioridade}" />
+                        <td class="fw-bold" th:text="${regra.prioridade}"></td>
+                        <td>
+                            <input type="number" class="form-control" th:field="*{regras[__${iterStat.index}__].tempoRespostaHoras}" required min="1" />
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" th:field="*{regras[__${iterStat.index}__].tempoResolucaoHoras}" required min="1" />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-            <div class="text-end mt-4">
-                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-            </div>
-        </form>
-    </div>
-</main>
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </section>
+    </main>
+    <footer th:replace="~{fragments :: footer}"></footer>
+</div>
 
-<div th:replace="~{fragments :: footer}"></div>
+<div th:replace="~{fragments :: logout-modal}"></div>
 <div th:replace="~{fragments :: scripts}"></div>
 
 </body>

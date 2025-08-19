@@ -1,62 +1,45 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-import { Client } from '@stomp/stompjs';
+import { useSocket } from './useSocket';
 
 const API_URL = 'http://192.168.15.12:8080';
 
 export default function TicketDetailScreen({ route }) {
     const { chamadoId } = route.params;
-    const [chamado, setChamado] = useState(null);
+    const [chamadoInfo, setChamadoInfo] = useState(null);
+    const [mensagens, setMensagens] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [novaMensagem, setNovaMensagem] = useState('');
     const flatListRef = useRef(null);
 
-    const fetchDetalhes = async () => {
-        setIsLoading(true);
-        try {
-            const token = await SecureStore.getItemAsync('userToken');
-            const response = await fetch(`${API_URL}/api/cliente/chamados/${chamadoId}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setChamado(data);
-            }
-        } catch (error) {
-            console.error("Erro ao buscar detalhes:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const handleMessageReceived = useCallback((newMessage) => {
+        setMensagens(prevMensagens => [...prevMensagens, newMessage]);
+    }, []);
+
+    const { isConnected } = useSocket(`chamado_${chamadoId}`, handleMessageReceived);
 
     useEffect(() => {
-        fetchDetalhes();
-
-        const client = new Client({
-            brokerURL: `ws://${API_URL.split('//')[1]}/ws-chat-web`,
-            onConnect: () => {
-                client.subscribe(`/topic/chamados/${chamadoId}`, (payload) => {
-                    const message = JSON.parse(payload.body);
-                    setChamado(prevChamado => ({
-                        ...prevChamado,
-                        mensagens: [...prevChamado.mensagens, message]
-                    }));
+        const fetchDetalhes = async () => {
+            setIsLoading(true);
+            try {
+                const token = await SecureStore.getItemAsync('userToken');
+                const response = await fetch(`${API_URL}/api/cliente/chamados/${chamadoId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
                 });
-            },
-            onStompError: (frame) => {
-                console.error('Broker reported error: ' + frame.headers['message']);
-                console.error('Additional details: ' + frame.body);
-            },
-        });
-
-        client.activate();
-
-        return () => {
-            client.deactivate();
+                if (response.ok) {
+                    const data = await response.json();
+                    setChamadoInfo(data);
+                    setMensagens(data.mensagens || []);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar detalhes:", error);
+            } finally {
+                setIsLoading(false);
+            }
         };
+        fetchDetalhes();
     }, [chamadoId]);
-
 
     const handleSendMessage = async () => {
         if (!novaMensagem.trim()) return;
@@ -64,10 +47,7 @@ export default function TicketDetailScreen({ route }) {
             const token = await SecureStore.getItemAsync('userToken');
             await fetch(`${API_URL}/api/cliente/chamados/${chamadoId}/mensagens`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ texto: novaMensagem }),
             });
             setNovaMensagem('');
@@ -84,7 +64,7 @@ export default function TicketDetailScreen({ route }) {
         </View>
     );
 
-    if (isLoading || !chamado) {
+    if (isLoading || !chamadoInfo) {
         return <ActivityIndicator style={styles.loader} size="large" color="#f97316" />;
     }
 
@@ -95,27 +75,31 @@ export default function TicketDetailScreen({ route }) {
             keyboardVerticalOffset={90}
         >
             <View style={styles.header}>
-                <Text style={styles.title} numberOfLines={1}>{chamado.titulo}</Text>
-                <Text style={styles.status}>{chamado.status.replace('_', ' ')}</Text>
+                <Text style={styles.title} numberOfLines={1}>{chamadoInfo.titulo}</Text>
+                <Text style={styles.status}>{chamadoInfo.status.replace('_', ' ')}</Text>
             </View>
-
             <FlatList
                 ref={flatListRef}
-                data={chamado.mensagens}
+                data={mensagens}
                 renderItem={renderMensagem}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item, index) => item.id?.toString() || index.toString()}
                 contentContainerStyle={styles.chatContainer}
                 onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
             />
-
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.textInput}
                     value={novaMensagem}
                     onChangeText={setNovaMensagem}
-                    placeholder="Digite sua mensagem..."
+                    placeholder={isConnected ? "Digite sua mensagem..." : "Conectando ao chat..."}
+                    editable={isConnected}
                 />
-                <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
+                <TouchableOpacity
+                    style={[styles.sendButton, !isConnected && styles.sendButtonDisabled]}
+                    onPress={handleSendMessage}
+                    disabled={!isConnected}
+                >
                     <Text style={styles.sendButtonText}>Enviar</Text>
                 </TouchableOpacity>
             </View>
@@ -136,29 +120,9 @@ const styles = StyleSheet.create({
     authorText: { fontWeight: 'bold', marginBottom: 4, color: '#4a5568' },
     messageText: { fontSize: 16, color: '#1a202c' },
     timestampText: { fontSize: 10, color: '#718096', alignSelf: 'flex-end', marginTop: 8 },
-    inputContainer: {
-        flexDirection: 'row',
-        padding: 10,
-        backgroundColor: '#fff',
-        borderTopWidth: 1,
-        borderColor: '#e2e8f0',
-    },
-    textInput: {
-        flex: 1,
-        height: 40,
-        borderWidth: 1,
-        borderColor: '#dee2e6',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        backgroundColor: '#f8f9fa',
-    },
-    sendButton: {
-        marginLeft: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f97316',
-        borderRadius: 20,
-        paddingHorizontal: 20,
-    },
+    inputContainer: { flexDirection: 'row', padding: 10, backgroundColor: '#fff', borderTopWidth: 1, borderColor: '#e2e8f0' },
+    textInput: { flex: 1, height: 40, borderWidth: 1, borderColor: '#dee2e6', borderRadius: 20, paddingHorizontal: 15, backgroundColor: '#f8f9fa' },
+    sendButton: { marginLeft: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f97316', borderRadius: 20, paddingHorizontal: 20 },
     sendButtonText: { color: '#fff', fontWeight: 'bold' },
+    sendButtonDisabled: { backgroundColor: '#fdba74' }
 });

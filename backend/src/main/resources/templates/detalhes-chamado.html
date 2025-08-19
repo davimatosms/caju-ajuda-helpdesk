@@ -57,10 +57,62 @@
 <div th:replace="~{fragments :: logout-modal}"></div>
 <div th:replace="~{fragments :: scripts}"></div>
 
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments :: head-links}"></div>
+    <title th:text="'Detalhes do Chamado #' + ${chamado.id}"></title>
+</head>
+<body class="layout-dashboard">
+
+<nav th:replace="~{fragments :: navbar}"></nav>
+
+<div class="page-content-wrapper">
+    <main class="main-content">
+        <header class="mb-4">
+            <a th:href="@{/chamados/meus}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left-circle me-2"></i>Voltar</a>
+        </header>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <section class="content-card p-4 p-md-5">
+                    <h1 class="h3 fw-bold mb-3" th:text="${chamado.titulo}"></h1>
+                    <hr>
+                    <article>
+                        <h5 class="mb-3">Histórico da Conversa</h5>
+                        <div id="chat-container" class="chat-container mb-4"></div>
+
+                        <div th:if="${chamado.status.name() != 'FECHADO'}">
+                            <h5 class="mb-3">Enviar Nova Mensagem</h5>
+                            <form id="messageForm" name="messageForm">
+                                <div class="mb-3">
+                                    <textarea class="form-control" id="message" rows="4" placeholder="Digite sua mensagem aqui..." required></textarea>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary"><i class="bi bi-send-fill me-2"></i>Enviar Mensagem</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div th:if="${chamado.status.name() == 'FECHADO'}" class="alert alert-info text-center">
+                            Este chamado foi fechado e não pode mais receber novas mensagens.
+                        </div>
+                    </article>
+                </section>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments :: footer}"></footer>
+</div>
+
+
+<div th:replace="~{fragments :: logout-modal}"></div>
+<div th:replace="~{fragments :: scripts}"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script th:inline="javascript">
     /*<![CDATA[*/
+    // O SCRIPT PERMANECE O MESMO
     const chamado = /*[[${chamado}]]*/ {};
     const messageForm = document.querySelector('#messageForm');
     const messageInput = document.querySelector('#message');
@@ -108,8 +160,8 @@
         messageElement.innerHTML = `
             <div class="message-content">
                 <p class="message-author">${message.autor.nome}</p>
-                <p style="white-space: pre-wrap;">${message.texto}</p>
-                <p class="message-time text-end">${dataFormatada}</p>
+                <p style="white-space: pre-wrap;" class="mb-0">${message.texto}</p>
+                <p class="message-time text-end mb-0">${dataFormatada}</p>
             </div>`;
         chatContainer.appendChild(messageElement);
         chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -123,6 +175,9 @@
     connect();
     /*]]>*/
 </script>
+
+</body>
+</html>
 
 </body>
 </html>

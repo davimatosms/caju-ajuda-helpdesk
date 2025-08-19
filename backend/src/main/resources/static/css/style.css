@@ -1,0 +1,256 @@
+/* Estilo Unificado para o Projeto Caju Ajuda */
+
+/* 1. Configurações Globais e Variáveis
+-------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --caju-primary: #f59e0b; /* Laranja-amarelado vibrante do caju */
+    --caju-primary-light: #fb923c;
+    --caju-secondary: #ef4444; /* Vermelho-quente do caju */
+    --caju-leaf: #22c55e; /* Verde da folha/castanha */
+    --text-dark: #2d3748;
+    --text-light: #718096;
+    --bg-light: #f7fafc;
+    --border-color: #e2e8f0;
+    --white: #ffffff;
+    --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* 2. Layouts Principais
+-------------------------------------------------- */
+
+/* Layout para páginas centralizadas (Login, Cadastro, Telas de Sucesso) */
+body.layout-centered {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+}
+
+/* Layout para o painel com sidebar */
+body.layout-dashboard {
+    display: flex;
+    flex-direction: row;
+}
+
+.page-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex-grow: 1;
+}
+
+/* 3. Componentes Comuns
+-------------------------------------------------- */
+.footer {
+    padding: 1.5rem 0;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    background-color: var(--white);
+    border-top: 1px solid var(--border-color);
+}
+
+.content-card {
+    background-color: var(--white);
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    padding: 2.5rem;
+}
+
+.btn-primary {
+    background-color: var(--caju-primary);
+    border-color: var(--caju-primary);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: var(--caju-primary-light);
+    border-color: var(--caju-primary-light);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--caju-primary);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+
+/* 4. Estilos Específicos de Páginas
+-------------------------------------------------- */
+
+/* Estilos para Telas de Autenticação e Sucesso */
+.auth-container {
+    background-color: var(--white);
+    padding: 2.5rem;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.auth-container .logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.auth-container h2 {
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+.auth-container .form-group {
+    margin-bottom: 1.25rem;
+    text-align: left;
+}
+
+.auth-container .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+.auth-container .form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.auth-container .btn-submit {
+    background-image: linear-gradient(to right, var(--caju-primary), var(--caju-secondary));
+    color: var(--white);
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+}
+
+.auth-container .btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(245, 158, 11, 0.3);
+}
+
+.auth-container .auth-link {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.auth-container .auth-link a {
+    color: var(--caju-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-container .auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* Estilos do Layout do Dashboard */
+.sidebar {
+    width: 260px;
+    background-color: var(--white);
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    color: var(--caju-primary);
+    padding-left: 0.5rem;
+}
+
+.sidebar-header .logo {
+    width: 40px;
+}
+
+.sidebar .nav-link {
+    color: #495057;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #f1f3f5;
+    color: var(--text-dark);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--caju-primary);
+    color: white;
+    font-weight: bold;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+}
+
+main.main-content {
+    flex-grow: 1;
+    padding: 2.5rem;
+    overflow-y: auto;
+}
+
+/* Chat/Detalhes do chamado */
+.chat-container {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+.chat-message {
+    display: flex;
+    margin-bottom: 1rem;
+    max-width: 80%;
+}
+.chat-message .message-content {
+    background-color: #f1f3f5;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+}
+.chat-message.tecnico {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+.chat-message.tecnico .message-content {
+    background-color: #e6f7ff;
+}
+.message-author {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+.message-time {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+}

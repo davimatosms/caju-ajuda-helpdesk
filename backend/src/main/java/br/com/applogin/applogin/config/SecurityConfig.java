@@ -1,6 +1,7 @@
 package br.com.applogin.applogin.config;
 
 import br.com.applogin.applogin.service.UserDetailServicesImpl;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,18 +23,15 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailServicesImpl userDetailServicesImpl;
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthFilter;
-    @Autowired
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    @Autowired private UserDetailServicesImpl userDetailServicesImpl;
+    @Autowired private JwtAuthenticationFilter jwtAuthFilter;
+    @Autowired private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/**") // Aplica esta configuração APENAS para /api/**
+                .securityMatcher("/api/**")
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
@@ -41,6 +39,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/tecnico/**").hasRole("TECNICO")
                         .requestMatchers("/api/cliente/**").hasRole("CLIENTE")
                         .anyRequest().authenticated()
+                )
+                // ▼ --- FIX #1: Keep this block to handle API auth errors directly.
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -54,8 +57,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/css/**", "/js/**", "/images/**",
-                                "/login", "/cadastroUsuario", "/verify", "/registro-sucesso", "/verificacao-sucesso",
-                                "/ws-chat-web/**", "/ws-chat-java/**"
+                                "/login", "/cadastroUsuario", "/verify",
+                                "/registro-sucesso", "/verificacao-sucesso",
+                                "/error" // ▼ --- FIX #2: Add the /error endpoint here.
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/chamados/**").hasRole("CLIENTE")

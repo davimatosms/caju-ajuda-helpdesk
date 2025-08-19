@@ -32,39 +32,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String jwt = null;
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
 
-        // 1. Verifica se o Header Authorization existe e se começa com "Bearer "
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response); // Se não, continua o fluxo normal sem autenticar
+        // 1. Check for token in Authorization header (for REST API calls)
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+        }
+        // 2. Fallback to check for token in query parameter (for WebSocket)
+        else if (request.getParameter("token") != null) {
+            jwt = request.getParameter("token");
+        }
+
+        if (jwt == null) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. Extrai o token do cabeçalho (removendo o "Bearer ")
-        jwt = authHeader.substring(7);
-
-        // 3. Extrai o email do usuário de dentro do token
-        userEmail = jwtService.extractUsername(jwt);
-
-        // 4. Verifica se o usuário não está autenticado no contexto de segurança atual
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-
-            // 5. Se o token for válido...
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                // ...cria um token de autenticação e o define no contexto de segurança.
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null, // Não precisamos de credenciais (senha) aqui
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            final String userEmail = jwtService.extractUsername(jwt);
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            // Silently ignore exceptions to let the filter chain continue,
+            // access will be denied later if authentication is not set.
         }
-        // 6. Passa a requisição para o próximo filtro na cadeia
+
         filterChain.doFilter(request, response);
     }
 }
