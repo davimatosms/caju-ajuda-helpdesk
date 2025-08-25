@@ -8,63 +8,46 @@ Este backlog documenta as funcionalidades, melhorias e débitos técnicos para o
 ---
 
 ### **Prioridade Alta (Ciclo de Desenvolvimento Atual)**
-
 *Funcionalidades essenciais para completar os fluxos de trabalho existentes e entregar valor imediato.*
 
 #### 🚀 **Épico 1: Gestão de Contas de Administrador**
 * **Descrição:** Expandir as funcionalidades do painel de administração para fornecer um ciclo de vida completo para a gestão de contas de técnicos.
-* **ID:** `A-1`
-* **User Story:** **Como Admin**, quero poder **editar os dados** (nome, e-mail) e **redefinir a senha** de um técnico para gerir as suas credenciais.
-* **Tarefas Técnicas:**
-    - Criar endpoints `PUT /api/admin/tecnicos/{id}` e `POST /api/admin/tecnicos/{id}/reset-password`.
-    - Implementar a lógica de negócio no `AdminService` com validações.
-    - Adicionar botões "Editar" e "Redefinir Senha" na UI de `admin-tecnicos.html`.
 
-#### 👤 **Épico 2: Paridade de Funcionalidades do Cliente Mobile**
-* **Descrição:** Garantir que a experiência mobile seja tão completa quanto a da web, focando em funcionalidades críticas de interação com os chamados.
-* **ID:** `C-1`
-* **User Story:** **Como Cliente (Mobile)**, quero poder **enviar e visualizar anexos** no chat para partilhar imagens e documentos importantes.
-* **Tarefas Técnicas:**
-    - Implementar a lógica de upload de ficheiros (`multipart/form-data`) no `TicketDetailScreen.js`.
-    - Adaptar a UI do chat para renderizar links de download ou pré-visualizações de imagens.
-    - Garantir que o `FileStorageService` no backend lida corretamente com os uploads do cliente React Native.
+| ID    | User Story                                                                                                              | Tarefas Técnicas Sugeridas                                                                                                                              |
+| :---- | :---------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **A-1** | **Como Admin**, quero poder **editar os dados** (nome, e-mail) de um técnico existente para corrigir ou atualizar informações.     | - Criar endpoint `PUT /api/admin/tecnicos/{id}`.<br>- Implementar `AdminService.updateTecnico()` com validação de e-mail duplicado.<br>- Adicionar botão "Editar" na UI `admin-tecnicos.html` que abre um modal de edição. |
+| **A-2** | **Como Admin**, quero poder **desativar/reativar** uma conta de técnico para controlar o acesso ao sistema.                     | - Adicionar um campo `boolean active` na entidade `Usuario`.<br>- Criar endpoint `PATCH /api/admin/tecnicos/{id}/status`.<br>- Adicionar um switch "Ativo/Inativo" na tabela de técnicos. |
+| **A-3** | **Como Admin**, quero poder **redefinir a senha** de um técnico, que irá gerar uma senha temporária e enviá-la por e-mail. | - Criar endpoint `POST /api/admin/tecnicos/{id}/reset-password`.<br>- Integrar com o `EmailService` para o envio da nova senha.<br>- Adicionar botão "Redefinir Senha" na UI. |
 
-#### ⚙️ **Épico 3: Melhorias no Fluxo de Trabalho do Técnico**
-* **Descrição:** Otimizar a aplicação desktop para tornar o trabalho da equipa de suporte mais proativo e organizado.
-* **ID:** `T-1`
-* **User Story:** **Como Técnico**, quero **receber uma notificação em tempo real** na aplicação desktop quando um novo chamado for criado.
-* **Tarefas Técnicas:**
-    - Criar um novo tópico WebSocket no backend (ex: `/topic/chamados/novos`).
-    - Modificar o `ChamadoService` para que, ao criar um novo chamado, publique uma mensagem neste tópico.
-    - O `WebSocketService` do cliente JavaFX deve subscrever este novo tópico e acionar um alerta visual/sonoro.
+---
+
+#### 👤 **Épico 2: Paridade de Funcionalidades do Cliente (Mobile & Web)**
+* **Descrição:** Garantir que a experiência do cliente seja consistente e completa tanto na plataforma web quanto na aplicação mobile.
+
+| ID    | User Story                                                                                                                    | Tarefas Técnicas Sugeridas                                                                                                                                                                                                                         |
+| :---- | :---------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **C-1** | **Como Cliente (Mobile)**, quero poder **enviar e visualizar anexos** no chat para partilhar imagens e documentos.              | - Implementar upload `multipart/form-data` no React Native.<br>- Adaptar a UI do `TicketDetailScreen.js` para renderizar links de download ou pré-visualizações de imagens.<br>- Garantir que o `FileStorageService` no backend lida com os uploads do mobile. |
+| **C-2** | **Como Cliente (Web e Mobile)**, quero ver uma **notificação visual (badge)** nos meus chamados quando houver uma nova resposta. | - Modificar o endpoint `/api/cliente/chamados` para incluir um campo `boolean hasUnreadMessages`.<br>- Implementar lógica no frontend para exibir o "badge" com base neste campo. |
+| **C-3** | **Como Cliente (Web e Mobile)**, quero poder **fechar o meu próprio chamado** se considerar que o problema foi resolvido.      | - Criar endpoint `POST /api/cliente/chamados/{id}/fechar`.<br>- Adicionar validações de negócio no `ChamadoService` para garantir que apenas o "dono" do chamado o pode fechar. |
 
 ---
 
 ### **Prioridade Média (Próximo Ciclo)**
-
 *Funcionalidades que agregam valor significativo e melhoram a experiência geral.*
 
-#### 🚀 **Épico 1: Gestão de Contas de Administrador (Continuação)**
-* **ID:** `A-2`
-* **User Story:** **Como Admin**, quero poder **desativar/reativar** uma conta de técnico para controlar o acesso de forma temporária.
+#### ⚙️ **Épico 3: Melhorias de Produtividade do Técnico (Desktop)**
+* **Descrição:** Otimizar a interface desktop para melhorar a eficiência do fluxo de trabalho da equipa de suporte.
 
-#### 👤 **Épico 2: Autonomia do Cliente**
-* **ID:** `C-2`
-* **User Story:** **Como Cliente**, quero poder **fechar o meu próprio chamado** se o meu problema já tiver sido resolvido.
-* **ID:** `C-3`
-* **User Story:** **Como Cliente**, quero poder **reabrir um chamado recém-fechado** se o problema voltar a ocorrer.
-
-#### ⚙️ **Épico 3: Melhorias no Fluxo de Trabalho do Técnico (Continuação)**
-* **ID:** `T-2`
-* **User Story:** **Como Técnico**, quero poder **atribuir um chamado a mim mesmo** para sinalizar à equipa quem é o responsável.
-* **ID:** `T-3`
-* **User Story:** **Como Técnico**, quero poder **filtrar a lista de chamados** por status, prioridade ou cliente.
+| ID    | User Story                                                                                                                            | Tarefas Técnicas Sugeridas                                                                                                                                                                                            |
+| :---- | :------------------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **T-1** | **Como Técnico**, quero **receber uma notificação em tempo real** (pop-up ou alerta sonoro) na aplicação desktop quando um novo chamado for criado. | - Criar um tópico WebSocket `/topic/chamados/novos`.<br>- O `ChamadoService`, ao criar um novo chamado, deve publicar uma mensagem neste tópico.<br>- O cliente JavaFX deve subscrever este tópico e acionar um alerta visual. |
+| **T-2** | **Como Técnico**, quero poder **filtrar e ordenar a lista de chamados** por ID, status ou prioridade.                                 | - Adicionar controlos de UI (ComboBox, TextField) no `chamados-view.fxml`.<br>- Modificar o `ApiService` e o `TecnicoApiController` para aceitar parâmetros de query (ex: `/api/tecnico/chamados?status=ABERTO`). |
+| **T-3** | **Como Técnico**, quero poder **atribuir um chamado a mim mesmo** para sinalizar à equipa que estou a trabalhar nele.                  | - Adicionar uma relação `ManyToOne tecnicoResponsavel` na entidade `Chamado`.<br>- Criar endpoint `PUT /api/tecnico/chamados/{id}/atribuir`.<br>- Adicionar um botão "Atribuir a mim" na UI `detalhes-chamado-view.fxml`. |
 
 ---
 
 ### **Débito Técnico & Otimizações (Contínuo)**
-
-*Tarefas de "limpeza" e melhoria da base do código para garantir a saúde e a escalabilidade do projeto a longo prazo.*
+*Tarefas internas focadas em melhorar a qualidade do código, a performance e a manutenibilidade do sistema a longo prazo.*
 
 | ID    | Tarefa Técnica                                                                                                                                    | Justificação                                                                                                                                                                                                       |
 | :---- | :------------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
