@@ -1,65 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title th:text="'Detalhes do Chamado #' + ${chamado.id}"></title>
-    <div th:replace="~{fragments :: head-links}"></div>
-    <style>
-        .chat-container { border: 1px solid #dee2e6; border-radius: 0.5rem; padding: 1rem; max-height: 500px; overflow-y: auto; }
-        .chat-message { display: flex; margin-bottom: 1rem; max-width: 80%; }
-        .chat-message .avatar { font-size: 1.5rem; margin-right: 1rem; align-self: flex-start; }
-        .chat-message .message-content { background-color: #f1f3f5; border-radius: 0.5rem; padding: 0.75rem; }
-        .chat-message.tecnico { margin-left: auto; flex-direction: row-reverse; }
-        .chat-message.tecnico .avatar { margin-left: 1rem; margin-right: 0; }
-        .chat-message.tecnico .message-content { background-color: #e6f7ff; }
-        .message-author { font-weight: bold; }
-        .message-time { font-size: 0.8rem; color: #6c757d; }
-    </style>
-</head>
-<body>
-
-<div th:replace="~{fragments :: navbar}"></div>
-
-<main class="container main-content">
-    <div class="mb-4">
-        <a th:href="@{/chamados/meus}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left-circle me-2"></i>Voltar</a>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="content-card p-4 p-md-5">
-                <h1 class="h3 fw-bold mb-3" th:text="${chamado.titulo}"></h1>
-                <hr>
-                <h5 class="mb-3">Histórico da Conversa</h5>
-                <div id="chat-container" class="chat-container mb-4"></div>
-
-                <div th:if="${chamado.status.name() != 'FECHADO'}">
-                    <h5 class="mb-3">Enviar Nova Mensagem</h5>
-                    <form id="messageForm" name="messageForm">
-                        <div class="mb-3">
-                            <textarea class="form-control" id="message" rows="4" placeholder="Digite sua mensagem aqui..." required></textarea>
-                        </div>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-send-fill me-2"></i>Enviar Mensagem</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div th:if="${chamado.status.name() == 'FECHADO'}" class="alert alert-info text-center">
-                    Este chamado foi fechado e não pode mais receber novas mensagens.
-                </div>
-            </div>
-        </div>
-    </div>
-</main>
-
-<div th:replace="~{fragments :: footer}"></div>
-<div th:replace="~{fragments :: logout-modal}"></div>
-<div th:replace="~{fragments :: scripts}"></div>
-
-<!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
-<head>
     <div th:replace="~{fragments :: head-links}"></div>
     <title th:text="'Detalhes do Chamado #' + ${chamado.id}"></title>
 </head>

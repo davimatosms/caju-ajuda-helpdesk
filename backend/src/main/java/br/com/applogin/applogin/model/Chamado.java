@@ -49,6 +49,17 @@ public class Chamado {
     @Column
     private LocalDateTime dataLimiteResolucao;
 
+    @Column(name = "categoria")
+    private String categoria;
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
     @Enumerated(EnumType.STRING)
     private StatusSla statusSla = StatusSla.NO_PRAZO;
 

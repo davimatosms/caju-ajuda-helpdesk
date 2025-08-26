@@ -38,18 +38,28 @@
                         <th scope="row" th:text="${chamado.id}"></th>
                         <td th:text="${chamado.titulo}"></td>
                         <td>
-                            <span th:switch="${chamado.prioridade.name()}">
-                                <span th:case="'ALTA'" class="badge text-bg-danger" th:text="Alta"></span>
-                                <span th:case="'MEDIA'" class="badge text-bg-warning" th:text="Média"></span>
-                                <span th:case="'BAIXA'" class="badge text-bg-success" th:text="Baixa"></span>
-                            </span>
+                            <th:block th:if="${chamado.prioridade != null}">
+        <span th:switch="${chamado.prioridade.name()}">
+            <span th:case="'ALTA'" class="badge text-bg-danger" th:text="Alta"></span>
+            <span th:case="'MEDIA'" class="badge text-bg-warning" th:text="Média"></span>
+            <span th:case="'BAIXA'" class="badge text-bg-success" th:text="Baixa"></span>
+        </span>
+                            </th:block>
+                            <th:block th:if="${chamado.prioridade == null}">
+                                <span class="badge text-bg-secondary">Não definida</span>
+                            </th:block>
                         </td>
                         <td>
-                            <span th:switch="${chamado.status.name()}">
-                                <span th:case="'ABERTO'" class="badge text-bg-primary" th:text="Aberto"></span>
-                                <span th:case="'EM_ANDAMENTO'" class="badge text-bg-info" th:text="'Em Andamento'"></span>
-                                <span th:case="'FECHADO'" class="badge text-bg-secondary" th:text="Fechado"></span>
-                            </span>
+                            <th:block th:if="${chamado.prioridade != null}">
+                                <span th:switch="${chamado.prioridade.name()}">
+                                    <span th:case="'ALTA'" class="badge text-bg-danger" th:text="Alta"></span>
+            <span th:case="'MEDIA'" class="badge text-bg-warning" th:text="Média"></span>
+            <span th:case="'BAIXA'" class="badge text-bg-success" th:text="Baixa"></span>
+        </span>
+                            </th:block>
+                            <th:block th:if="${chamado.prioridade == null}">
+                                <span class="badge text-bg-secondary">Não definida</span>
+                            </th:block>
                         </td>
                         <td th:text="${#temporals.format(chamado.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td>
                         <td class="text-end">

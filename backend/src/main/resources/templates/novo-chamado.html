@@ -24,23 +24,12 @@
 
                         <div class="mb-3">
                             <label for="titulo" class="form-label">Título</label>
-                            <input type="text" class="form-control" id="titulo" th:field="*{titulo}" placeholder="Ex: Não consigo acessar meu extrato" required>
+                            <input type="text" class="form-control" id="titulo" th:field="*{titulo}" placeholder="Ex: Não consigo processar um reembolso" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="descricao" class="form-label">Descrição</label>
                             <textarea class="form-control" id="descricao" th:field="*{descricao}" rows="5" placeholder="Descreva o problema com o máximo de detalhes possível." required></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="prioridade" class="form-label">Prioridade</label>
-                            <select class="form-select" id="prioridade" name="prioridade" required>
-                                <option value="" disabled selected>-- Selecione uma prioridade --</option>
-                                <option th:each="p : ${prioridades}"
-                                        th:value="${p}"
-                                        th:text="${p.name().substring(0,1) + p.name().substring(1).toLowerCase()}">
-                                </option>
-                            </select>
                         </div>
 
                         <div class="mb-3">
