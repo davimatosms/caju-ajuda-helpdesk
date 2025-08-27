@@ -17,6 +17,7 @@ Um sistema de suporte e gerenciamento de tickets (helpdesk) completo, projetado 
    
     1.1. [Backlog do projeto](https://github.com/davimatosms/caju-ajuda-helpdesk/blob/main/Backlog.md)
 2. [Arquitetura do Sistema](#2-arquitetura-do-sistema)
+    2.1 [Diagramas do projeto](https://github.com/davimatosms/caju-ajuda-helpdesk/tree/main/diagramas)
 3. [Funcionalidades](#3-funcionalidades-detalhadas)
 4. [Pilha de Tecnologias](#4-pilha-de-tecnologias)
 5. [Como Executar o Projeto](#5-como-executar-o-projeto)
